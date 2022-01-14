@@ -26,7 +26,7 @@ namespace LongRoadGames.PacMan
         public TileState CurrentState { get; private set; }
         public Tile Tile { get; private set; }
         public Vector3Int CellPosition { get; private set; }
-        public Vector3 Position => _board.Tilemap.CellToWorld(CellPosition) + new Vector3(0.5f, 0.5f, 0.0f); // offset to a center-point anchor on the tile.
+        public Vector3 Position => _board.Tilemap.CellToWorld(CellPosition) + _board.Tilemap.tileAnchor; // offset to a center-point anchor on the tile.
 
         protected TileState _originalState;
         protected Gameboard _board;
@@ -34,7 +34,7 @@ namespace LongRoadGames.PacMan
         public GameTile(Gameboard board, Vector3Int position, TileState state, Tile tile)
         {
             _board = board;
-
+            
             CellPosition = position;
             _originalState = CurrentState = state;
             Tile = tile;

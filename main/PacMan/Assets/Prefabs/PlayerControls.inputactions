@@ -6,18 +6,18 @@
             "id": "5fb29972-9dff-46b5-9232-c5058c6574d5",
             "actions": [
                 {
-                    "name": "Left",
-                    "type": "Button",
-                    "id": "4ea6b3c5-a5a1-4cfb-9af3-23e51953bbb5",
-                    "expectedControlType": "Button",
+                    "name": "Move",
+                    "type": "Value",
+                    "id": "c15aad65-0d97-4e3b-84bd-7467ee09b8d2",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
-                    "name": "Right",
+                    "name": "Up",
                     "type": "Button",
-                    "id": "620b833c-50b8-4085-a364-601777b5beb2",
+                    "id": "9df1188a-3bea-416a-8813-fee672682ed6",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -26,16 +26,25 @@
                 {
                     "name": "Down",
                     "type": "Button",
-                    "id": "e1f674f1-ad4b-4d88-9056-0b64184497b2",
+                    "id": "1206e310-399b-4d5b-a4bb-9e38339d6cbd",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Up",
+                    "name": "Left",
                     "type": "Button",
-                    "id": "faad43ff-f320-47e3-baa9-80efe78122c9",
+                    "id": "5cd9b348-5e47-457d-af5d-fc71b28a1ab4",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Right",
+                    "type": "Button",
+                    "id": "c46e2193-0246-498c-87be-95868dd84d4c",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -44,46 +53,156 @@
             ],
             "bindings": [
                 {
-                    "name": "",
-                    "id": "556fa6a7-a7df-4fbe-86f7-9543ccf82c67",
-                    "path": "<Keyboard>/a",
+                    "name": "2D Vector (Keyboard)",
+                    "id": "65c73b34-999f-4829-8e27-b8268d90be32",
+                    "path": "2DVector",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Left",
-                    "isComposite": false,
+                    "action": "Move",
+                    "isComposite": true,
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "",
-                    "id": "fbe9656d-5fcf-4f83-9b38-21fb3e97f308",
-                    "path": "<Keyboard>/d",
+                    "name": "up",
+                    "id": "cd797088-dcae-4b70-8a1c-9a8f0de320ee",
+                    "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Right",
+                    "groups": "Default Controls",
+                    "action": "Move",
                     "isComposite": false,
-                    "isPartOfComposite": false
+                    "isPartOfComposite": true
                 },
                 {
-                    "name": "",
-                    "id": "fdb31c5e-e1c0-45f2-a057-30e4c05a8715",
+                    "name": "down",
+                    "id": "56c9382d-70b2-4647-a7af-05ceddead2d9",
                     "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
+                    "groups": "Default Controls",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "9db71705-8ccb-41b5-9e41-0d06d44e54b7",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default Controls",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "431410e2-df09-42c7-85fb-1c91473b4121",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default Controls",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "2D Vector (Gamepad)",
+                    "id": "05e4703c-02ca-4e13-8a14-a0146730a430",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
                     "groups": "",
+                    "action": "Move",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "bae85024-c959-483a-8bcf-931bb46f2537",
+                    "path": "<Gamepad>/leftStick/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default Controls",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "5754b1fd-9250-443d-912c-095db20f19d2",
+                    "path": "<Gamepad>/leftStick/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default Controls",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "31364435-3eed-4a89-bb25-ca7ba2b522f3",
+                    "path": "<Gamepad>/leftStick/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default Controls",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "b3acc4ca-e0a2-4427-9be3-6441999363ed",
+                    "path": "<Gamepad>/leftStick/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default Controls",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "5422b999-cab8-4903-ad10-485d9f876bc7",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default Controls",
+                    "action": "Up",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a9ab439d-d934-4845-84e0-226a4b6730eb",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default Controls",
                     "action": "Down",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "0281653e-281a-4cb4-b54a-c9a50758565b",
-                    "path": "<Keyboard>/w",
+                    "id": "9ace580c-3751-4d31-a87c-e05771455aea",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Up",
+                    "groups": "Default Controls",
+                    "action": "Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0dd616f7-7dbb-4045-8a58-f131b904378e",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default Controls",
+                    "action": "Right",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -92,12 +211,17 @@
     ],
     "controlSchemes": [
         {
-            "name": "KBM",
-            "bindingGroup": "KBM",
+            "name": "Default Controls",
+            "bindingGroup": "Default Controls",
             "devices": [
                 {
                     "devicePath": "<Keyboard>",
                     "isOptional": false,
+                    "isOR": false
+                },
+                {
+                    "devicePath": "<Gamepad>",
+                    "isOptional": true,
                     "isOR": false
                 }
             ]

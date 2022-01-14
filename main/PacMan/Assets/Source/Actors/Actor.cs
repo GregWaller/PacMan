@@ -20,11 +20,14 @@ namespace LongRoadGames.PacMan
 {
     public abstract class Actor : MonoBehaviour
     {
-        protected abstract float _speed { get; }
+        protected float _speed = 0.0f;
 
         protected Animator _animator;
         protected Gameboard _board;
         protected Vector3 _direction = Vector3.zero;
+        protected Direction _facing = Direction.Right;
+
+        public virtual void Update() { }
 
         public virtual void Initialize(Gameboard board)
         {
@@ -41,6 +44,7 @@ namespace LongRoadGames.PacMan
         protected void _face(Direction facing)
         {
             _animator.SetTrigger(facing.ToString());
+            _facing = facing;
         }
 
         protected Vector3 _directionMap(Direction facing) => facing switch

@@ -19,6 +19,7 @@ namespace LongRoadGames.PacMan
 {
     public enum Direction
     {
+        None,
         Up,
         Down,
         Left,
@@ -29,21 +30,25 @@ namespace LongRoadGames.PacMan
     {
         private const int _BOARD_WIDTH = 28;
         private const int _BOARD_HEIGHT = 31;
-        private static Vector3Int _PLAYER_START = new Vector3Int(13, 7, 0);
+        private static Vector3Int _PLAYER_START = new Vector3Int(14, 7, 0);
 
         public Tilemap Tilemap;
         public PacMan PacMan;
 
-        private Dictionary<Vector3Int, GameTile> _playArea;
-
         public Tile DotTile { get; private set; }
         public Tile PDotTile { get; private set; }
         public Tile EmptyTile { get; private set; }
+        public UIController GUI { get; private set; }
+
+        private Dictionary<Vector3Int, GameTile> _playArea;
 
         public void Start()
         {
             Debug.Assert(Tilemap != null, "CRITICAL ERROR: The gameboard cannot be null.");
             Debug.Assert(PacMan != null, "CRITICAL ERROR: PacMan cannot be null.");
+
+            GUI = gameObject.AddComponent<UIController>();
+            GUI.Initialize();
 
             DotTile = Instantiate(Resources.Load<Tile>("Sprites/Dot"));
             PDotTile = Instantiate(Resources.Load<Tile>("Sprites/PDot"));
@@ -104,44 +109,42 @@ namespace LongRoadGames.PacMan
             TileState.PDot => PDotTile,
             _ => throw new ArgumentOutOfRangeException($"CRITICAL ERROR: No tile was found for the given state: {state}."),
         };
+        private Vector3Int _neighbourMap(Vector3Int cell, Direction direction) => direction switch
+        {
+            Direction.Up => cell + Vector3Int.up,
+            Direction.Down => cell + Vector3Int.down,
+            Direction.Left => cell + Vector3Int.left,
+            Direction.Right => cell + Vector3Int.right,
+            _ => throw new ArgumentOutOfRangeException($"CRITICAL ERROR: No neighbour could be resolved for the direction {direction} from the perspective of the cell at {cell.x},{cell.y}."),
+        };
 
         public void SetTile(Vector3Int position, TileState state)
         {
             Tilemap.SetTile(position, _stateMap(state));
         }
 
-        public GameTile GetTile(Vector3Int point)
+        public GameTile GetTile(Vector3Int cell)
         {
-            return _playArea[point];
+            return _playArea[cell];
         }
         public GameTile GetTile(Vector3 point)
         {
             return GetTile(Tilemap.WorldToCell(point));
         }
 
+        public GameTile GetTileNeighbour(Vector3Int cell, Direction direction)
+        {
+            return _playArea[_neighbourMap(cell, direction)];
+        }
+        public GameTile GetTileNeighbour(Vector3 point, Direction direction)
+        {
+            Vector3Int cellPos = Tilemap.WorldToCell(point);
+            return GetTileNeighbour(cellPos, direction);
+        }
+
         public bool DirectionBlocked(Vector3Int cellPos, Direction direction)
         {
-            switch (direction)
-            {
-                case Direction.Up:
-                    cellPos.y += 1;
-                    break;
-
-                case Direction.Down:
-                    cellPos.y -= 1;
-                    break;
-
-                case Direction.Right:
-                    cellPos.x += 1;
-                    break;
-
-                case Direction.Left:
-                    cellPos.x -= 1;
-                    break;
-            }
-
-            GameTile gameTile = GetTile(cellPos);
-
+            GameTile gameTile = GetTile(_neighbourMap(cellPos, direction));
             return gameTile.CurrentState == TileState.Wall;
         }
         public bool DirectionBlocked(Vector3 position, Direction direction)

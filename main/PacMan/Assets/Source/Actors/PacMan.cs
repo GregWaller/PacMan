@@ -18,75 +18,62 @@ namespace LongRoadGames.PacMan
     [RequireComponent(typeof(PlayerInput))]
     public class PacMan : Actor
     {
-        protected override float _speed => 5.0f;
+        private const float _CELL_CENTER_THRESHOLD = 0.01f;
+        private const float _CELL_AREA_THRESHOLD = 0.35f;
 
         private PlayerInput _playerInput;
+        private Direction _currentDirection = Direction.Right;
 
-        public void Update()
+        public override void Update()
         {
-            if (_direction != Vector3.zero)
+            Direction input = _currentDirection;
+            if (_playerInput.actions["Up"].IsPressed())
             {
-                transform.Translate(_direction * (Time.deltaTime * _speed));
+                input = Direction.Up;
             }
+            else if (_playerInput.actions["Down"].IsPressed())
+            {
+                input = Direction.Down;
+            }
+            else if (_playerInput.actions["Right"].IsPressed())
+            {
+                input = Direction.Right;
+            }
+            else if (_playerInput.actions["Left"].IsPressed())
+            {
+                input = Direction.Left;
+            }
+
+            bool atJunction = Vector3.Distance(transform.position, _board.GetTile(transform.position).Position) <= _CELL_CENTER_THRESHOLD;
+
+            if (_currentDirection != input)
+            {
+                bool inputBlocked = _board.DirectionBlocked(transform.position, input);
+                if (!inputBlocked && atJunction)
+                {
+                    _currentDirection = input;
+                    _face(input);
+                    _direction = _directionMap(input);
+                }
+            }
+            else
+            {
+                bool pathBlocked = _board.DirectionBlocked(transform.position, _currentDirection);
+                if (pathBlocked && atJunction)
+                    _direction = Vector3.zero;
+            }
+
+            if (_direction != Vector3.zero)
+                transform.Translate(_direction * (Time.deltaTime * _speed));
         }
 
         public override void Initialize(Gameboard gameboard)
         {
             base.Initialize(gameboard);
 
+            _speed = 5.0f;
+
             _playerInput = GetComponent<PlayerInput>();
-            _playerInput.actions["Up"].performed += _up;
-            _playerInput.actions["Down"].performed += _down;
-            _playerInput.actions["Left"].performed += _left;
-            _playerInput.actions["Right"].performed += _right;
-        }
-
-        private void _up(InputAction.CallbackContext context)
-        {
-            Direction facing = Direction.Up;
-            
-            bool blocked = _board.DirectionBlocked(transform.position, facing); 
-            if (!blocked)
-            {
-                _face(facing);
-                _direction = _directionMap(facing);
-            }
-        }
-
-        private void _down(InputAction.CallbackContext context)
-        {
-            Direction facing = Direction.Down;
-
-            bool blocked = _board.DirectionBlocked(transform.position, facing);
-            if (!blocked)
-            {
-                _face(facing);
-                _direction = _directionMap(facing);
-            }
-        }
-
-        private void _left(InputAction.CallbackContext context)
-        {
-            Direction facing = Direction.Left;
-
-            bool blocked = _board.DirectionBlocked(transform.position, facing);
-            if (!blocked)
-            {
-                _face(facing);
-                _direction = _directionMap(facing);
-            }
-        }
-
-        private void _right(InputAction.CallbackContext context)
-        {
-            Direction facing = Direction.Right;
-
-            bool blocked = _board.DirectionBlocked(transform.position, facing);
-            if (!blocked)
-            {
-                _face(facing);
-                _direction = _directionMap(facing);
-            }
         }
     }
 }
