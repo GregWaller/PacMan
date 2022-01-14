@@ -17,14 +17,22 @@ using UnityEngine.Tilemaps;
 
 namespace LongRoadGames.PacMan
 {
-    public class GameMaster : MonoBehaviour
+    public enum Direction
+    {
+        Up,
+        Down,
+        Left,
+        Right,
+    };
+
+    public class Gameboard : MonoBehaviour
     {
         private const int _BOARD_WIDTH = 28;
         private const int _BOARD_HEIGHT = 31;
         private static Vector3Int _PLAYER_START = new Vector3Int(13, 7, 0);
 
-        public Tilemap Gameboard;
-        public Player PacMan;
+        public Tilemap Tilemap;
+        public PacMan PacMan;
 
         private Dictionary<Vector3Int, GameTile> _playArea;
 
@@ -34,7 +42,7 @@ namespace LongRoadGames.PacMan
 
         public void Start()
         {
-            Debug.Assert(Gameboard != null, "CRITICAL ERROR: The gameboard cannot be null.");
+            Debug.Assert(Tilemap != null, "CRITICAL ERROR: The gameboard cannot be null.");
             Debug.Assert(PacMan != null, "CRITICAL ERROR: PacMan cannot be null.");
 
             DotTile = Instantiate(Resources.Load<Tile>("Sprites/Dot"));
@@ -59,11 +67,11 @@ namespace LongRoadGames.PacMan
                 for(int x = 0; x < _BOARD_WIDTH; x++)
                 {
                     Vector3Int pos = new Vector3Int(x, y, 0);
-                    Tile tile = Gameboard.GetTile<Tile>(pos);
+                    Tile tile = Tilemap.GetTile<Tile>(pos);
 
                     if (tile == null)
                     {
-                        Gameboard.SetTile(pos, EmptyTile);
+                        Tilemap.SetTile(pos, EmptyTile);
                     }
                     else if (tile.name.Contains("wall"))
                     {
@@ -99,25 +107,21 @@ namespace LongRoadGames.PacMan
 
         public void SetTile(Vector3Int position, TileState state)
         {
-            Gameboard.SetTile(position, _stateMap(state));
+            Tilemap.SetTile(position, _stateMap(state));
         }
 
         public GameTile GetTile(Vector3Int point)
         {
             return _playArea[point];
         }
-
         public GameTile GetTile(Vector3 point)
         {
-            Vector3Int cellPos = Gameboard.WorldToCell(point);
-            return _playArea[cellPos];
+            return GetTile(Tilemap.WorldToCell(point));
         }
 
-        public bool DirectionBlocked(Vector3 position, Direction direction)
+        public bool DirectionBlocked(Vector3Int cellPos, Direction direction)
         {
-            Vector3Int cellPos = Gameboard.WorldToCell(position);
-
-            switch(direction)
+            switch (direction)
             {
                 case Direction.Up:
                     cellPos.y += 1;
@@ -139,6 +143,11 @@ namespace LongRoadGames.PacMan
             GameTile gameTile = GetTile(cellPos);
 
             return gameTile.CurrentState == TileState.Wall;
+        }
+        public bool DirectionBlocked(Vector3 position, Direction direction)
+        {
+            Vector3Int cellPos = Tilemap.WorldToCell(position);
+            return DirectionBlocked(cellPos, direction);
         }
 
         #endregion

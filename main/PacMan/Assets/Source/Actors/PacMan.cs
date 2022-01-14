@@ -15,23 +15,12 @@ using UnityEngine.InputSystem;
 
 namespace LongRoadGames.PacMan
 {
-    public enum Direction
-    {
-        Up,
-        Down,
-        Left,
-        Right,
-    };
-
     [RequireComponent(typeof(PlayerInput))]
-    public class Player : MonoBehaviour
+    public class PacMan : Actor
     {
-        private PlayerInput _playerInput;
-        private Animator _animator;
+        protected override float _speed => 5.0f;
 
-        private GameMaster _master;
-        private const float _speed = 5.0f;
-        private Vector3 _direction = Vector3.zero;
+        private PlayerInput _playerInput;
 
         public void Update()
         {
@@ -41,43 +30,22 @@ namespace LongRoadGames.PacMan
             }
         }
 
-        public void Initialize(GameMaster master)
+        public override void Initialize(Gameboard gameboard)
         {
-            _master = master;
-            _playerInput = GetComponent<PlayerInput>();
-            _animator = GetComponent<Animator>();
+            base.Initialize(gameboard);
 
+            _playerInput = GetComponent<PlayerInput>();
             _playerInput.actions["Up"].performed += _up;
             _playerInput.actions["Down"].performed += _down;
             _playerInput.actions["Left"].performed += _left;
             _playerInput.actions["Right"].performed += _right;
         }
 
-        public void Warp(GameTile tile, Direction facing)
-        {
-            transform.SetPositionAndRotation(tile.Position, Quaternion.Euler(0.0f, 0.0f, 0.0f));
-            _face(facing);
-        }
-
-        private Vector3 _directionMap(Direction facing) => facing switch
-        {
-            Direction.Up => transform.up,
-            Direction.Down => -transform.up,
-            Direction.Left => -transform.right,
-            Direction.Right => transform.right,
-            _ => throw new ArgumentOutOfRangeException($"CRITICAL ERROR: No direction matching the provided facing: {facing}."),
-        };
-
-        private void _face(Direction facing)
-        {
-            _animator.SetTrigger(facing.ToString());
-        }
-
         private void _up(InputAction.CallbackContext context)
         {
             Direction facing = Direction.Up;
             
-            bool blocked = _master.DirectionBlocked(transform.position, facing); 
+            bool blocked = _board.DirectionBlocked(transform.position, facing); 
             if (!blocked)
             {
                 _face(facing);
@@ -89,7 +57,7 @@ namespace LongRoadGames.PacMan
         {
             Direction facing = Direction.Down;
 
-            bool blocked = _master.DirectionBlocked(transform.position, facing);
+            bool blocked = _board.DirectionBlocked(transform.position, facing);
             if (!blocked)
             {
                 _face(facing);
@@ -101,7 +69,7 @@ namespace LongRoadGames.PacMan
         {
             Direction facing = Direction.Left;
 
-            bool blocked = _master.DirectionBlocked(transform.position, facing);
+            bool blocked = _board.DirectionBlocked(transform.position, facing);
             if (!blocked)
             {
                 _face(facing);
@@ -113,7 +81,7 @@ namespace LongRoadGames.PacMan
         {
             Direction facing = Direction.Right;
 
-            bool blocked = _master.DirectionBlocked(transform.position, facing);
+            bool blocked = _board.DirectionBlocked(transform.position, facing);
             if (!blocked)
             {
                 _face(facing);
