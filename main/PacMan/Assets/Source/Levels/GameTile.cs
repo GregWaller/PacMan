@@ -15,10 +15,18 @@ namespace LongRoadGames.PacMan
 {
     public enum TileState
     {
-        Empty,
-        Wall,
-        Dot,
-        PDot,
+        Empty = 0,
+        Wall = 1,
+        Dot = 10,
+        PDot = 50,
+        Cherry = 100,
+        Strawberry = 300,
+        Orange = 500,
+        Apple = 700,
+        Melon = 1000,
+        Galaxian = 2000,
+        Bell = 3000,
+        Key = 5000,
     }
 
     public class GameTile

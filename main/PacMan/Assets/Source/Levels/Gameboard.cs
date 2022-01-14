@@ -9,6 +9,9 @@
  * Date: 01.13.2022
  */
 
+#define _DEV
+//#define _DEV_LEVELPROGRESSION
+
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -40,7 +43,15 @@ namespace LongRoadGames.PacMan
         public Tile EmptyTile { get; private set; }
         public UIController GUI { get; private set; }
 
+        public bool PowerPhase { get; private set; } = false;
+        private float _powerPhaseDuration = 10.0f;
+        private int _currentPowerPhase = 0;
+
         private Dictionary<Vector3Int, GameTile> _playArea;
+        private int _dotCounter = 0;
+
+        private int _points;
+        private int _currentLevel = 1;
 
         public void Start()
         {
@@ -55,13 +66,34 @@ namespace LongRoadGames.PacMan
             EmptyTile = Instantiate(Resources.Load<Tile>("Sprites/Empty"));
 
             _initialize_board();
+#if _DEV_LEVELPROGRESSION
+            _clear_board();
+#endif
             _reset_board();
+
+            _currentLevel = 0;
+            GUI.SetLevel(_currentLevel);
 
             PacMan.Initialize(this);
             PacMan.Warp(GetTile(_PLAYER_START), Direction.Right);
         }
 
-        #region Board Initialization and Resets
+        public void Update()
+        {
+#if _DEV
+            GUI.DebugPowerPhase(PowerPhase, _currentPowerPhase);
+            GUI.DebugDotCounter(_dotCounter);
+#endif
+            if (PowerPhase)
+            {
+                // we'll count down the power phase duration and terminate it.
+
+                
+
+            }
+        }
+
+        #region Board Initialization and Setup
 
         private void _initialize_board()
         {
@@ -94,9 +126,33 @@ namespace LongRoadGames.PacMan
 
         private void _reset_board()
         {
+            _dotCounter = 0;
+#if _DEV_LEVELPROGRESSION
+
+            // we're going to add a single dot to 20, 7, 0
+            GameTile tile = GetTile(new Vector3Int(20, 7, 0));
+            tile.Reset();
+            _dotCounter++;
+#else
             foreach(GameTile gameTile in _playArea.Values.Where(t => t.CurrentState != TileState.Wall))
+            {
                 gameTile.Reset();
+                if (gameTile.CurrentState == TileState.Dot || gameTile.CurrentState == TileState.PDot)
+                    _dotCounter++;
+            }
+#endif
+
         }
+
+#if _DEV_LEVELPROGRESSION
+        private void _clear_board()
+        {
+            foreach (GameTile gameTile in _playArea.Values.Where(t => t.CurrentState != TileState.Wall))
+            {
+                gameTile.SetState(TileState.Empty);
+            }
+        }
+#endif
 
         #endregion
 
@@ -154,5 +210,65 @@ namespace LongRoadGames.PacMan
         }
 
         #endregion
+
+        #region Points, Scoring, and Levels
+
+        public void AddPoints(int points)
+        {
+            _points += points;
+            GUI.SetScore(_points);
+        }
+
+        public void ConsumeDot(GameTile tile)
+        {
+            bool isPowerDot = tile.CurrentState == TileState.PDot;
+
+            tile.SetState(TileState.Empty);
+            AddPoints(isPowerDot ? 50 : 10);
+
+            _dotCounter--;
+
+            if (_dotCounter == 0)
+            {
+                PacMan.Warp(GetTile(_PLAYER_START), Direction.Right);
+
+                // 1b. warp ghosts to the ghost house
+
+                _reset_board();
+                _currentLevel++;
+
+                GUI.SetLevel(_currentLevel);
+                GUI.DebugLevel(_currentLevel);
+
+                return;
+            }
+
+            if (isPowerDot)
+            {
+                // activate power phase for ghosts.
+                PowerPhase = true;
+
+                // For the first four levels, the first two scatter periods last for seven seconds each.They change to five seconds each for level
+                // five and beyond. The third scatter mode is always set to five seconds.The fourth scatter period lasts for five seconds on level one,
+                // but then is only 1 / 60th of a second for the rest of play.
+
+                // how long should this power phase be?
+                _currentPowerPhase++;
+
+                float duration = 5.0f;  // default to 5 seconds.
+
+                if (_currentLevel >= 18)
+                {
+                    duration = 0.0f; // no more frightened
+                }
+                if (_currentLevel <= 3 && _currentPowerPhase <= 2)
+                {
+                    duration += 2.0f;  // add 2 seconds for levels 0 through 3 if the current power phase is the first or second
+                }
+
+            }
+        }
+
+#endregion
     }
 }

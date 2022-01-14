@@ -6,6 +6,8 @@
  * Date: 01.13.2022
  */
 
+#define _DEV
+
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -22,7 +24,7 @@ namespace LongRoadGames.PacMan
         private const float _CELL_AREA_THRESHOLD = 0.35f;
 
         private PlayerInput _playerInput;
-        private Direction _currentDirection = Direction.Right;
+        private Direction _currentDirection = Direction.None;
 
         public override void Update()
         {
@@ -44,7 +46,12 @@ namespace LongRoadGames.PacMan
                 input = Direction.Left;
             }
 
-            bool atJunction = Vector3.Distance(transform.position, _board.GetTile(transform.position).Position) <= _CELL_CENTER_THRESHOLD;
+            GameTile currentTile = _board.GetTile(transform.position);
+            bool atJunction = Vector3.Distance(transform.position, currentTile.Position) <= _CELL_CENTER_THRESHOLD;
+
+            // no input has been received from the player.  
+            if (input == Direction.None)
+                return;
 
             if (_currentDirection != input)
             {
@@ -65,6 +72,14 @@ namespace LongRoadGames.PacMan
 
             if (_direction != Vector3.zero)
                 transform.Translate(_direction * (Time.deltaTime * _speed));
+
+#if _DEV
+            GameTile nextTile = _board.GetTileNeighbour(transform.position, _currentDirection);
+            _board.GUI.DebugTileStates(currentTile.CurrentState, nextTile.CurrentState);
+#endif
+
+            if (currentTile.CurrentState == TileState.Dot || currentTile.CurrentState == TileState.PDot)
+                _board.ConsumeDot(currentTile);
         }
 
         public override void Initialize(Gameboard gameboard)
@@ -72,6 +87,9 @@ namespace LongRoadGames.PacMan
             base.Initialize(gameboard);
 
             _speed = 5.0f;
+
+            // Since I was on the first level, Pac-Man was at 80 % of his full speed.
+            // With some math, it turns out Pac - Man moves exactly 80 pixels per second, or 10 tiles per second.
 
             _playerInput = GetComponent<PlayerInput>();
         }

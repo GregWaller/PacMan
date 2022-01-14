@@ -18,6 +18,9 @@ using UnityEngine.InputSystem;
 
 namespace LongRoadGames.PacMan
 {
+    // reference for ghost AI: 
+    // https://www.youtube.com/watch?v=ataGotQ7ir8
+
     public abstract class Actor : MonoBehaviour
     {
         protected float _speed = 0.0f;
