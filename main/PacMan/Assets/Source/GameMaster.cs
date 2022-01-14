@@ -1,6 +1,9 @@
 ﻿/*
- * Primary game-controller component for Pac-Man facsimile.
- * Provided to Nvizzio Creations for purposes of skill assessment 
+ * Primary game-controller component for a Pac-Man facsimile.
+ * Provided to Nvizzio Creations for skill assessment.
+ * 
+ * This class describes the game board and the play area and provides an interface for external objects
+ * to discern and mutate the nature and contents of its composite tiles.
  * 
  * Author: Greg Waller
  * Date: 01.13.2022
@@ -18,8 +21,10 @@ namespace LongRoadGames.PacMan
     {
         private const int _BOARD_WIDTH = 28;
         private const int _BOARD_HEIGHT = 31;
+        private static Vector3Int _PLAYER_START = new Vector3Int(13, 7, 0);
 
         public Tilemap Gameboard;
+        public Player PacMan;
 
         private Dictionary<Vector3Int, GameTile> _playArea;
 
@@ -29,22 +34,23 @@ namespace LongRoadGames.PacMan
 
         public void Start()
         {
-            Debug.Assert(Gameboard != null, "CRITICAL ERROR: A tilemap must be provided.");
+            Debug.Assert(Gameboard != null, "CRITICAL ERROR: The gameboard cannot be null.");
+            Debug.Assert(PacMan != null, "CRITICAL ERROR: PacMan cannot be null.");
 
-            _tile_init();
-            _board_init();
-            _board_setup();
-            //_spawn_player();
-        }
-
-        private void _tile_init()
-        {
             DotTile = Instantiate(Resources.Load<Tile>("Sprites/Dot"));
             PDotTile = Instantiate(Resources.Load<Tile>("Sprites/PDot"));
             EmptyTile = Instantiate(Resources.Load<Tile>("Sprites/Empty"));
+
+            _initialize_board();
+            _reset_board();
+
+            PacMan.Initialize(this);
+            PacMan.Warp(GetTile(_PLAYER_START), Direction.Right);
         }
 
-        private void _board_init()
+        #region Board Initialization and Resets
+
+        private void _initialize_board()
         {
             _playArea = new Dictionary<Vector3Int, GameTile>();
 
@@ -61,7 +67,7 @@ namespace LongRoadGames.PacMan
                     }
                     else if (tile.name.Contains("wall"))
                     {
-                        _playArea.Add(pos, new Wall_GameTile(this, pos, tile));
+                        _playArea.Add(pos, new GameTile(this, pos, TileState.Wall, tile));
                     }
                     else
                     {
@@ -73,11 +79,15 @@ namespace LongRoadGames.PacMan
             }
         }
 
-        private void _board_setup()
+        private void _reset_board()
         {
             foreach(GameTile gameTile in _playArea.Values.Where(t => t.CurrentState != TileState.Wall))
                 gameTile.Reset();
         }
+
+        #endregion
+
+        #region Tile Access and Mutation
 
         private Tile _stateMap(TileState state) => state switch
         {
@@ -92,9 +102,45 @@ namespace LongRoadGames.PacMan
             Gameboard.SetTile(position, _stateMap(state));
         }
 
-        private void _spawn_player()
+        public GameTile GetTile(Vector3Int point)
         {
-
+            return _playArea[point];
         }
+
+        public GameTile GetTile(Vector3 point)
+        {
+            Vector3Int cellPos = Gameboard.WorldToCell(point);
+            return _playArea[cellPos];
+        }
+
+        public bool DirectionBlocked(Vector3 position, Direction direction)
+        {
+            Vector3Int cellPos = Gameboard.WorldToCell(position);
+
+            switch(direction)
+            {
+                case Direction.Up:
+                    cellPos.y += 1;
+                    break;
+
+                case Direction.Down:
+                    cellPos.y -= 1;
+                    break;
+
+                case Direction.Right:
+                    cellPos.x += 1;
+                    break;
+
+                case Direction.Left:
+                    cellPos.x -= 1;
+                    break;
+            }
+
+            GameTile gameTile = GetTile(cellPos);
+
+            return gameTile.CurrentState == TileState.Wall;
+        }
+
+        #endregion
     }
 }

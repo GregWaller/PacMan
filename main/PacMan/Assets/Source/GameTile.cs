@@ -1,6 +1,8 @@
 ﻿/*
- * Primary game-controller component for Pac-Man facsimile.
- * Provided to Nvizzio Creations for purposes of skill assessment 
+ * Tile abstraction for a Pac-Man facsimile.
+ * Provided to Nvizzio Creations for skill assessment.
+ * 
+ * This class describes tiles on the gameboard, along with their initial and current states.
  * 
  * Author: Greg Waller
  * Date: 01.13.2022
@@ -23,7 +25,8 @@ namespace LongRoadGames.PacMan
     {
         public TileState CurrentState { get; private set; }
         public Tile Tile { get; private set; }
-        public Vector3Int Position { get; private set; }
+        public Vector3Int CellPosition { get; private set; }
+        public Vector3 Position => _master.Gameboard.CellToWorld(CellPosition);
 
         protected TileState _originalState;
         protected GameMaster _master;
@@ -32,7 +35,7 @@ namespace LongRoadGames.PacMan
         {
             _master = master;
 
-            Position = position;
+            CellPosition = position;
             _originalState = CurrentState = state;
             Tile = tile;
         }
@@ -40,18 +43,12 @@ namespace LongRoadGames.PacMan
         public void SetState(TileState state)
         {
             CurrentState = state;
-            _master.SetTile(Position, state);
+            _master.SetTile(CellPosition, state);
         }
 
         public void Reset()
         {
             SetState(_originalState);
         }
-    }
-
-    public class Wall_GameTile : GameTile
-    {
-        public Wall_GameTile(GameMaster master, Vector3Int position, Tile tile)
-            : base(master, position, TileState.Wall, tile) { }
     }
 }
