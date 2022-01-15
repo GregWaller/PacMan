@@ -151,20 +151,10 @@ namespace LongRoadGames.PacMan
                 }
             }
 
-            // warp tiles
-            // need to work for all characters
-
-            // left warp is 0, 16, 0
             LeftWarp = _playArea[new Vector3Int(0, 16, 0)];
             LeftWarp.OverwriteState(TileState.LeftWarp);
-
-            // exiting the left warp should transition the character to the right-most edge of the right warp 
-
-            // right warp is 27, 16, 0
             RightWarp = _playArea[new Vector3Int(27, 16, 0)];
             RightWarp.OverwriteState(TileState.RightWarp);
-
-            // exiting the right warp should transition the character to the left-most edge of the left warp
 
             // warp tunnels
             // provides a slowing effect for ghosts
@@ -269,7 +259,7 @@ namespace LongRoadGames.PacMan
                 neighbourCell = _neighbourMap(cell, direction);
 
 #if DEBUG
-            Debug.Assert(_playArea.ContainsKey(neighbourCell), $"CRITICAL ERROR: Could not determine the {direction} neighbour of ({cell.x}{cell.y}) as the neighbour coordinate is not within the bounds of the gameboard.");
+            Debug.Assert(_playArea.ContainsKey(neighbourCell), $"CRITICAL ERROR: Could not determine the {direction} neighbour of ({currentTile.CurrentState} @ [{cell.x},{cell.y}]) as the neighbour coordinate is not within the bounds of the gameboard.");
 #endif
             return _playArea[neighbourCell];
         }

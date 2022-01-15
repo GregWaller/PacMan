@@ -69,7 +69,7 @@ namespace LongRoadGames.PacMan
                 _check_warp(currentTile);
 
                 if (_direction != Vector3.zero)
-                    transform.Translate(_direction * (Time.deltaTime * _speed));
+                    _update_gameplay_position();
 
                 _check_new_tile(currentTile);
             }

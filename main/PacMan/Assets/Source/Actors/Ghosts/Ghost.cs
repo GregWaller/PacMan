@@ -31,6 +31,7 @@ namespace LongRoadGames.PacMan
 
         private Dictionary<Strategy, _strategyMethod> _strategyMap;
         private Strategy _currentLevelStrategy;
+        private bool _pathSelected = false;
 
         public override void Update()
         {
@@ -42,18 +43,22 @@ namespace LongRoadGames.PacMan
 
                     bool atJunction = Vector3.Distance(transform.position, currentTile.Position) <= GameTile.CELL_COLLISION_THRESHOLD;
 
-                    if (atJunction)
+                    if (atJunction && !_pathSelected)
                     {
                         // FIXME: it appears as though ghosts are still making multiple decisions for a given tile.
 
                         _select_target();
                         GameTile neighbour = _board.GetTileNeighbour(currentTile.CellPosition, Facing);
                         //Debug.Log($"{name} is deciding a target for the tile at {currentTile.CellPosition} with the {Facing} neighbour is {neighbour.CurrentState}");
+                        _pathSelected = true;
                     }
 
                     _check_warp(currentTile);
-                    transform.Translate(_direction * (Time.deltaTime * _speed));
-                    _check_new_tile(currentTile);
+
+                    _update_gameplay_position();
+
+                    if (_check_new_tile(currentTile))
+                        _pathSelected = false;
                 }
                 else
                 {
@@ -61,6 +66,8 @@ namespace LongRoadGames.PacMan
                 }
             }
         }
+
+        #region Initialization, Spawning, and Resets
 
         public override void Initialize(Gameboard board)
         {
@@ -127,6 +134,10 @@ namespace LongRoadGames.PacMan
 
         }
 
+        #endregion
+
+        #region Strategy AI
+
         protected void _select_target()
         {
             Strategy levelStrategy = _select_strategy();
@@ -192,5 +203,7 @@ namespace LongRoadGames.PacMan
         {
             return Vector3Int.zero;
         }
+
+        #endregion
     }
 }

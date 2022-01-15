@@ -19,6 +19,8 @@ namespace LongRoadGames.PacMan
 
         public virtual void Update() { }
 
+        #region Initialization and Resets
+
         public virtual void Initialize(Gameboard board)
         {
             _board = board;
@@ -39,6 +41,8 @@ namespace LongRoadGames.PacMan
             _direction = _directionMap(Facing);
             _previousTile = CurrentTile;
         }
+
+        #endregion
 
         #region Warping
 
@@ -73,21 +77,12 @@ namespace LongRoadGames.PacMan
                 GameTile targetTile = currentTile.CurrentState == TileState.LeftWarp ? _board.RightWarp : _board.LeftWarp;
                 Vector3 targetPosition = targetTile.Position + offset;
                 Warp(targetPosition, Facing);
-
-                // only warp if i am entering a warp tile (don't warp on exit)
             }
-        }
-
-        protected void _check_new_tile(GameTile currentTile)
-        {
-            GameTile newTile = _board.GetTile(transform.position);
-            if (newTile != currentTile)
-                _previousTile = currentTile;
         }
 
         #endregion
 
-        #region Facing and Directionality
+        #region Facing, Directionality, and Positional Awareness
 
         protected Vector3 _directionMap(Direction facing) => facing switch
         {
@@ -98,10 +93,46 @@ namespace LongRoadGames.PacMan
             _ => throw new ArgumentOutOfRangeException($"CRITICAL ERROR: No direction matching the provided facing: {facing}."),
         };
 
+        protected void _update_gameplay_position()
+        {
+            transform.Translate(_direction * (Time.deltaTime * _speed));
+
+            Vector3 currentPos = transform.position;
+            switch (Facing)
+            {
+                case Direction.Left:
+                case Direction.Right:
+
+                    int currentY = (int)currentPos.y;
+                    transform.position = new Vector3(currentPos.x, currentY + 0.5f, currentPos.z);
+                    break;
+
+                case Direction.Up:
+                case Direction.Down:
+
+                    int currentX = (int)currentPos.x;
+                    transform.position = new Vector3(currentX + 0.5f, currentPos.y, currentPos.z);
+                    break;
+            }
+        }
+
         protected void _face(Direction facing)
         {
             _animator.SetTrigger(facing.ToString());
             Facing = facing;
+        }
+
+        protected virtual bool _check_new_tile(GameTile currentTile)
+        {
+            GameTile newTile = _board.GetTile(transform.position);
+
+            if (newTile != currentTile)
+            {
+                _previousTile = currentTile;
+                return true;
+            }
+
+            return false;
         }
 
         #endregion
