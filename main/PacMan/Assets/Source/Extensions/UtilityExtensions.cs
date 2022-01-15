@@ -1,16 +1,4 @@
-﻿/*
- * A set of utility methods and extensions for use in a Pac-Man facsimile.
- * 
- * This class describes the game board and the play area and provides an interface for external objects
- * to discern and mutate the nature and contents of its composite tiles.
- * 
- * Author: Greg Waller
- * Date: 01.13.2022
- */
-
-#define _DEV
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;

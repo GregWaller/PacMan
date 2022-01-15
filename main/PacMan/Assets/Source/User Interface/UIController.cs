@@ -1,14 +1,4 @@
-﻿/*
- * Primary game-controller component for a Pac-Man facsimile.
- * 
- * This class describes the game board and the play area and provides an interface for external objects
- * to discern and mutate the nature and contents of its composite tiles.
- * 
- * Author: Greg Waller
- * Date: 01.13.2022
- */
-
-#define _DEV
+﻿#define _DEV
 
 using System.Collections.Generic;
 using UnityEngine;

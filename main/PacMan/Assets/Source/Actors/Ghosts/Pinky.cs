@@ -1,34 +1,34 @@
-﻿/*
- * Enemy behaviour for Pinky in a Pac-Man facsimile.
- * 
- * Author: Greg Waller
- * Date: 01.13.2022
- */
-
-#define _DEV
-
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEngine.InputSystem;
+﻿using UnityEngine;
 
 namespace LongRoadGames.PacMan
 {
     public class Pinky : Ghost
     {
         protected override Vector3 _INITIAL_POSITION => new Vector3(14.0f, 16.5f, 0.0f);
+        protected override Vector3Int _SCATTER_TARGET => new Vector3Int(2, 34, 0);
         protected override Direction _INITIAL_FACING => Direction.Down;
+        protected override float _INITIAL_SPAWN_TIMER => 1.0f;
 
         protected override Vector3Int _chase()
         {
-            return Vector3Int.zero;
-        }
+            Vector3 pacManPosition = _board.PacMan.CurrentTile.Position;
+            Direction pacManFacing = _board.PacMan.Facing;
+            Vector3 newPos;
 
-        protected override Vector3Int _scatter()
-        {
-            return Vector3Int.zero;
+            if (pacManFacing == Direction.Up)
+            {
+                // simulate the integer overflow from the original 8-bit version
+                // see: https://youtu.be/ataGotQ7ir8?t=451 for more information
+
+                newPos = pacManPosition + (_directionMap(Direction.Up) * 4);
+                newPos += (_directionMap(Direction.Left) * 4);
+            }
+            else
+            {
+                newPos = pacManPosition + (_directionMap(pacManFacing) * 4);
+            }
+
+            return _board.Tilemap.WorldToCell(newPos);
         }
     }
 }

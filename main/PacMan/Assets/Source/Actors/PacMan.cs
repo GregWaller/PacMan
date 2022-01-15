@@ -1,11 +1,4 @@
-﻿/*
- * Player behaviour for a Pac-Man facsimile.
- * 
- * Author: Greg Waller
- * Date: 01.13.2022
- */
-
-#define _DEV
+﻿#define _DEV
 
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -24,7 +17,7 @@ namespace LongRoadGames.PacMan
         {
             if (_board.LevelInProgress)
             {
-                Direction input = _facing;
+                Direction input = Facing;
                 if (_playerInput.actions["Up"].IsPressed())
                 {
                     input = Direction.Up;
@@ -46,31 +39,30 @@ namespace LongRoadGames.PacMan
                 bool atJunction = Vector3.Distance(transform.position, currentTile.Position) <= GameTile.CELL_CENTER_THRESHOLD;
 
 #if _DEV
-                GameTile nextTile = _board.GetTileNeighbour(transform.position, _facing);
+                GameTile nextTile = _board.GetTileNeighbour(transform.position, Facing);
                 if (nextTile != null)
                     _board.GUI.DebugTileStates(currentTile.CurrentState, nextTile.CurrentState);
                 else
                     _board.GUI.DebugTileStates(currentTile.CurrentState, TileState.Empty);
 #endif
 
-                // no input has been received from the player.  
                 if (input == Direction.None)
                     return;
 
                 // TODO: make the junction a little more forgiving for face reversal
 
-                if (_facing != input)
+                if (Facing != input)
                 {
                     bool inputBlocked = _board.DirectionBlocked(transform.position, input);
                     if (!inputBlocked && atJunction)
                     {
-                        _facing = input;
+                        Facing = input;
                         _face(input);
                         _direction = _directionMap(input);
                     }
                 }
 
-                bool pathBlocked = _board.DirectionBlocked(transform.position, _facing);
+                bool pathBlocked = _board.DirectionBlocked(transform.position, Facing);
                 if (pathBlocked && atJunction)
                     _direction = Vector3.zero;
 
@@ -86,19 +78,15 @@ namespace LongRoadGames.PacMan
         {
             base.Initialize(gameboard);
 
+            // TODO: tweak PacMan's speed to make it feel a little smoother
             _speed = 5.0f;
-
-            // Since I was on the first level, Pac-Man was at 80 % of his full speed.
-            // With some math, it turns out Pac - Man moves exactly 80 pixels per second, or 10 tiles per second.
-
             _playerInput = GetComponent<PlayerInput>();
-            
         }
 
         public override void Begin()
         {
-            _facing = Direction.Right;
-            _direction = _directionMap(_facing);
+            Facing = Direction.Right;
+            _direction = _directionMap(Facing);
         }
     }
 }

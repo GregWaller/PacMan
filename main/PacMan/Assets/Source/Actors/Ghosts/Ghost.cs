@@ -1,18 +1,5 @@
-﻿/*
- * Enemy behaviour generalization in a Pac-Man facsimile.
- * 
- * Author: Greg Waller
- * Date: 01.13.2022
- */
-
-#define _DEV
-
-using System;
-using System.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEngine.InputSystem;
 
 namespace LongRoadGames.PacMan
 {
@@ -30,28 +17,84 @@ namespace LongRoadGames.PacMan
     public abstract class Ghost : Actor
     {
         protected delegate Vector3Int _strategyMethod();
+        protected abstract Vector3Int _SCATTER_TARGET { get; }
+        protected abstract float _INITIAL_SPAWN_TIMER { get; }
+
+        protected bool _active = false;
+        protected bool _spawning = false;
+        protected float _spawnTimer = 0.0f;
+        
+        protected Vector3 _ghostHomeCenter = new Vector3(14.0f, 16.5f, 0.0f);
+        protected Vector3 _ghostHomeDoor = new Vector3(14.0f, 19.5f, 0.0f);
+        protected Vector3 _spawnTransitionTarget = Vector3.zero;
+        protected int _spawnStage = 0;
 
         private Dictionary<Strategy, _strategyMethod> _strategyMap;
+        private Strategy _currentLevelStrategy;
 
         public override void Update()
         {
-            GameTile currentTile = _board.GetTile(transform.position);
-            bool atJunction = Vector3.Distance(transform.position, currentTile.Position) <= GameTile.CELL_CENTER_THRESHOLD;
-
-            if (atJunction)
+            if (_board.LevelInProgress)
             {
-                Strategy levelStrategy = _select_strategy();
-                Vector3Int targetCell = _strategyMap[levelStrategy]();
-                _select_path(targetCell);
-            }
+                if (_active)
+                {
+                    GameTile currentTile = CurrentTile;
 
-            if (_direction != Vector3.zero)
-                transform.Translate(_direction * (Time.deltaTime * _speed));
+                    bool atJunction = Vector3.Distance(transform.position, currentTile.Position) <= GameTile.CELL_CENTER_THRESHOLD;
+
+                    if (atJunction)
+                    {
+                        _select_target();
+                        GameTile neighbour = _board.GetTileNeighbour(currentTile.CellPosition, Facing);
+                        Debug.Log($"{this.name} is deciding a target for the tile at {currentTile.CellPosition} with the {Facing} neighbour is {neighbour.CurrentState}");
+                    }
+                        
+                        
+                    transform.Translate(_direction * (Time.deltaTime * _speed));
+
+                }
+                else
+                {
+                    if (_spawning)
+                    {
+                        float distanceToTarget = Vector3.Distance(transform.position, _spawnTransitionTarget);
+
+                        if (_spawnStage == 0 && distanceToTarget <= 0.01f)
+                        {
+                            _spawnStage = 1;
+                            _spawnTransitionTarget = _ghostHomeDoor;
+                        }
+                        else if (_spawnStage == 1 && distanceToTarget <= 0.01f)
+                        {
+                            _spawning = false;
+                            Begin();
+                        }
+
+                        Vector3 direction = (_spawnTransitionTarget - transform.position).normalized;
+                        transform.Translate(direction * (Time.deltaTime * _speed));
+                    }
+                    else
+                    {
+                        _spawnTimer -= Time.deltaTime;
+                        if (_spawnTimer <= 0.0f)
+                        {
+                            _spawning = true;
+                            _spawnTimer = 0.0f;
+                            _spawnStage = 0;
+                            _spawnTransitionTarget = _ghostHomeCenter;
+                        }
+                    }
+                }
+            }
         }
 
         public override void Initialize(Gameboard board)
         {
             base.Initialize(board);
+
+            _speed = 3.0f;
+            _currentLevelStrategy = Strategy.Scatter; 
+
             _strategyMap = new Dictionary<Strategy, _strategyMethod>()
             {
                 { Strategy.Chase, _chase },
@@ -61,30 +104,59 @@ namespace LongRoadGames.PacMan
             };
         }
 
+        public override void Begin()
+        {
+            _active = true;
+            _speed = 4.5f;
+            _select_target();
+            _direction = _directionMap(Facing);
+        }
+
+        public override void Reboot()
+        {
+            base.Reboot();
+            _active = false;
+            _spawnTimer = _INITIAL_SPAWN_TIMER;
+        }
+
+        protected void _select_target()
+        {
+            Strategy levelStrategy = _select_strategy();
+
+            if (levelStrategy != _currentLevelStrategy)
+            {
+                _face(Facing.Flip());
+                _currentLevelStrategy = levelStrategy;
+            }
+
+            Vector3Int targetCell = _strategyMap[_currentLevelStrategy]();
+            _select_path(targetCell);
+        }
         protected virtual Strategy _select_strategy()
         {
             return _board.LevelStrategy;
         }
-
         protected void _select_path(Vector3Int targetCell)
         {
-            Dictionary<Direction,GameTile> viableOptions = new Dictionary<Direction, GameTile>();
+            Dictionary<Direction, GameTile> viableOptions = new Dictionary<Direction, GameTile>();
             Vector3Int currentPosition = CurrentTile.CellPosition;
 
-            Direction forward = _facing;
-            Direction left = _facing.Left();
-            Direction right = _facing.Right();
+            Direction forward = Facing;
+            Direction left = Facing.Left();
+            Direction right = Facing.Right();
 
-            if (!_board.DirectionBlocked(currentPosition, _facing))
+            if (!_board.DirectionBlocked(currentPosition, forward))
                 viableOptions.Add(forward, _board.GetTileNeighbour(currentPosition, forward));
-            if (!_board.DirectionBlocked(currentPosition, _facing.Left()))
+
+            if (!_board.DirectionBlocked(currentPosition, left))
                 viableOptions.Add(left, _board.GetTileNeighbour(currentPosition, left));
-            if (!_board.DirectionBlocked(currentPosition, _facing.Right()))
+
+            if (!_board.DirectionBlocked(currentPosition, right))
                 viableOptions.Add(right, _board.GetTileNeighbour(currentPosition, right));
 
             float shortestDistance = float.MaxValue;
             Direction selectedDirection = Direction.None;
-            foreach(KeyValuePair<Direction,GameTile> option in viableOptions)
+            foreach (KeyValuePair<Direction, GameTile> option in viableOptions)
             {
                 GameTile tile = option.Value;
                 float distance = Vector3Int.Distance(tile.CellPosition, targetCell);
@@ -99,8 +171,11 @@ namespace LongRoadGames.PacMan
             _direction = _directionMap(selectedDirection);
         }
 
-        protected abstract Vector3Int _scatter();
         protected abstract Vector3Int _chase();
+        protected virtual Vector3Int _scatter()
+        {
+            return _SCATTER_TARGET;
+        }
         protected virtual Vector3Int _frightened()
         {
             return Vector3Int.zero;

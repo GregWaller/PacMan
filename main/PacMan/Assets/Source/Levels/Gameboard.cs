@@ -1,14 +1,4 @@
-﻿/*
- * Primary game-controller component for a Pac-Man facsimile.
- * 
- * This class describes the game board and the play area and provides an interface for external objects
- * to discern and mutate the nature and contents of its composite tiles.
- * 
- * Author: Greg Waller
- * Date: 01.13.2022
- */
-
-#define _DEV
+﻿#define _DEV
 
 using System;
 using System.Linq;
@@ -66,6 +56,8 @@ namespace LongRoadGames.PacMan
 
         public void Start()
         {
+            Application.targetFrameRate = 60;
+
             Debug.Assert(Tilemap != null, "CRITICAL ERROR: The gameboard cannot be null.");
             Debug.Assert(PacMan != null, "CRITICAL ERROR: PacMan cannot be null.");
 
@@ -168,7 +160,6 @@ namespace LongRoadGames.PacMan
             DotsRemaining = 0;
 #if _DEV_LEVELPROGRESSION
 
-            // we're going to add a single dot to 20, 7, 0
             GameTile tile = GetTile(new Vector3Int(20, 7, 0));
             tile.Reset();
             _dotCounter++;
@@ -294,10 +285,9 @@ namespace LongRoadGames.PacMan
                 return;
             }
 
-            if (isPowerDot)
+            if (isPowerDot && CurrentLevel < 16 || CurrentLevel == 17)
             {
                 PowerPhase = true;
-
             }
         }
 

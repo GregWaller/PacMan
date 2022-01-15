@@ -1,35 +1,17 @@
-﻿/*
- * Enemy behaviour for Blinky in a Pac-Man facsimile.
- * 
- * Author: Greg Waller
- * Date: 01.13.2022
- */
-
-#define _DEV
-
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEngine.InputSystem;
+﻿using UnityEngine;
 
 namespace LongRoadGames.PacMan
 {
     public class Blinky : Ghost
     {
         protected override Vector3 _INITIAL_POSITION => new Vector3(14.0f, 19.5f, 0.0f);
+        protected override Vector3Int _SCATTER_TARGET => new Vector3Int(25, 34, 0);
         protected override Direction _INITIAL_FACING => Direction.Left;
+        protected override float _INITIAL_SPAWN_TIMER => 0.0f;
 
         // Blinky can override the level strategy if there are only a few dots left on the map 
         // Level            0       1       2-4     5-7     8-10    11-13   14-17   18+
         // Dots Remaining   20      30      40      50      60      80      100     120
-
-        public override void Begin()
-        {
-            _facing = Direction.Left;
-            _direction = _directionMap(_facing);
-        }
 
         protected override Strategy _select_strategy()
         {
@@ -52,12 +34,6 @@ namespace LongRoadGames.PacMan
         protected override Vector3Int _chase()
         {
             return _board.PacMan.CurrentTile.CellPosition;
-        }
-
-        protected override Vector3Int _scatter()
-        {
-            // target is tol-right corner
-            return Vector3Int.zero;
         }
     }
 }

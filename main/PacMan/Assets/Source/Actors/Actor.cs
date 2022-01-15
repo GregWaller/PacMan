@@ -1,14 +1,4 @@
-﻿/*
- * Generalization of an actor.
- * 
- * This class represents the abstraction of an actor during the course of play and provides
- * a generalized interface for those objects.
- * 
- * Author: Greg Waller
- * Date: 01.13.2022
- */
-
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace LongRoadGames.PacMan
@@ -25,7 +15,7 @@ namespace LongRoadGames.PacMan
 
         protected float _speed = 0.0f;
         protected Vector3 _direction = Vector3.zero;
-        protected Direction _facing = Direction.Right;
+        public Direction Facing { get; protected set; } = Direction.Right;
 
         public virtual void Update() { }
 
@@ -33,13 +23,13 @@ namespace LongRoadGames.PacMan
         {
             _board = board;
             _animator = GetComponent<Animator>();
-            _speed = 3.0f;
+            
             Reboot();
         }
 
         public virtual void Reboot()
         {
-            _facing = Direction.Right;
+            Facing = _INITIAL_FACING;
             _direction = Vector3.zero;
             Warp(_INITIAL_POSITION, _INITIAL_FACING);
         }
@@ -59,7 +49,7 @@ namespace LongRoadGames.PacMan
         protected void _face(Direction facing)
         {
             _animator.SetTrigger(facing.ToString());
-            _facing = facing;
+            Facing = facing;
         }
 
         protected Vector3 _directionMap(Direction facing) => facing switch
