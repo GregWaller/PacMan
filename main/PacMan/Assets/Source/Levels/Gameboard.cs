@@ -37,6 +37,7 @@ namespace LongRoadGames.PacMan
         public Clyde Clyde;
 
         // ----- Play Area
+        public FruitSpawner FruitSpawner;
         public GameTile LeftWarp { get; private set; }
         public GameTile RightWarp { get; private set; }
         private const int _BOARD_WIDTH = 28;
@@ -58,8 +59,10 @@ namespace LongRoadGames.PacMan
 
         // ----- Scoring
         public int DotsRemaining { get; private set; } = 0;
+        private int _maxDots = 0;
         private int _points = 0;
         private float _readyCountdown = 5.0f;
+        private int _fruitSpawn = 0;
 
         public void Start()
         {
@@ -87,7 +90,7 @@ namespace LongRoadGames.PacMan
         {
 #if _DEV
             GUI.DebugPowerPhase(PowerPhase, _currentPowerPhase);
-            GUI.DebugDotCounter(DotsRemaining);
+            GUI.DebugDotCounter(DotsRemaining, _maxDots);
 #endif
 
             if (!LevelInProgress)
@@ -124,6 +127,7 @@ namespace LongRoadGames.PacMan
             {
                 _reset_dots();
                 _currentPowerPhase = 0;
+                _fruitSpawn = 0;
             }
 
             _reset_actors();
@@ -177,6 +181,8 @@ namespace LongRoadGames.PacMan
                 }
             }
 
+            FruitSpawner.Initialize(this);
+
             LeftWarp = _playArea[new Vector3Int(0, 16, 0)];
             LeftWarp.OverwriteState(TileState.LeftWarp);
             RightWarp = _playArea[new Vector3Int(27, 16, 0)];
@@ -213,6 +219,8 @@ namespace LongRoadGames.PacMan
                 if (gameTile.CurrentState == TileState.Dot || gameTile.CurrentState == TileState.PDot)
                     DotsRemaining++;
             }
+
+            _maxDots = DotsRemaining;
 #endif
         }
 
@@ -325,14 +333,22 @@ namespace LongRoadGames.PacMan
                 PacMan.BonusLife();
         }
 
-        public bool ConsumeDot(GameTile tile)
+        public bool Consume(GameTile tile)
         {
             bool isPowerDot = tile.CurrentState == TileState.PDot;
+            bool isDot = tile.CurrentState == TileState.Dot;
 
+            AddPoints((int)tile.CurrentState);
             tile.SetState(TileState.Empty);
-            AddPoints(isPowerDot ? 50 : 10);
 
-            DotsRemaining--;
+            if (isDot || isPowerDot)
+            {
+                DotsRemaining--;
+
+                if (_fruitSpawn == 0 && DotsRemaining == _maxDots - 70 ||
+                    _fruitSpawn == 1 && DotsRemaining == _maxDots - 170)
+                    _spawn_fruit();
+            }
 
             if (DotsRemaining == 0)
             {
@@ -359,6 +375,12 @@ namespace LongRoadGames.PacMan
         {
             _ghostsEaten++;
             AddPoints(Ghost.POINT_VALUE * _ghostsEaten);
+        }
+
+        private void _spawn_fruit()
+        {
+            FruitSpawner.Spawn(CurrentLevel);
+            _fruitSpawn++;
         }
 
         #endregion

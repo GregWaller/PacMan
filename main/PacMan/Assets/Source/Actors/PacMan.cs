@@ -8,6 +8,8 @@ namespace LongRoadGames.PacMan
     [RequireComponent(typeof(PlayerInput))]
     public class PacMan : Actor
     {
+        public const float COLLISION_THRESHOLD = 0.8f;  // actor "radius" is 1.  a value slightly less than that gives us an 80% overlap requirement for a "collision"
+
         protected override Vector3 _INITIAL_POSITION => new Vector3(14.0f, 7.5f, 0.0f);
         protected override Direction _INITIAL_FACING => Direction.Right;
 
@@ -66,9 +68,9 @@ namespace LongRoadGames.PacMan
                 if (pathBlocked && atJunction)
                     _direction = Vector3.zero;
 
-                if (currentTile.CurrentState == TileState.Dot || currentTile.CurrentState == TileState.PDot)
+                if (currentTile.CurrentState >= TileState.Dot)
                 {
-                    if (!_board.ConsumeDot(currentTile))
+                    if (!_board.Consume(currentTile))
                         return;
                 }
 

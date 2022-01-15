@@ -34,7 +34,7 @@ namespace LongRoadGames.PacMan
         protected bool _respawning = false;
 
         // ----- Pathing, AI, and Collisions
-        protected const float _PACMAN_COLLISION_THRESHOLD = 0.8f;  // actor "radius" is 1.  a value slightly less than that gives us an 80% overlap requirement for a "collision"
+        
         protected abstract Vector3Int _SCATTER_TARGET { get; }
         protected Vector3Int _EATEN_TARGET = new Vector3Int(13, 19, 0);
         protected delegate Vector3Int _strategyMethod();
@@ -318,7 +318,7 @@ namespace LongRoadGames.PacMan
                 return false;
 
             float distance = Vector3.Distance(transform.position, _board.PacMan.transform.position);
-            return distance <= _PACMAN_COLLISION_THRESHOLD;
+            return distance <= PacMan.COLLISION_THRESHOLD;
         }
 
         #endregion

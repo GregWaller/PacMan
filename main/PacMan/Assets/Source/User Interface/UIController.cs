@@ -50,7 +50,6 @@ namespace LongRoadGames.PacMan
 
         // ----- Life Indicators
         private const int _LIFE_ICON_COUNT = 5;
-        private Sprite _lifeIcon;
         private List<Image> _lifeIcons;
 
         public void Initialize()
@@ -81,8 +80,6 @@ namespace LongRoadGames.PacMan
                 _levelIcons.Add(transform.Find("Canvas/pnlLevelIndicator/Icon_" + i).gameObject.GetComponent<Image>());
 
             // ----- Life Indicators
-            Sprite[] lifeSprites = Resources.LoadAll<Sprite>("Sprites/pacman_move");
-            _lifeIcon = lifeSprites[1];
             _lifeIcons = new List<Image>();
             for(int i = 0; i < _LIFE_ICON_COUNT; i++)
                 _lifeIcons.Add(transform.Find("Canvas/pnlLivesIndicator/Icon_" + i).gameObject.GetComponent<Image>()); 
@@ -106,8 +103,6 @@ namespace LongRoadGames.PacMan
 
             else if (level < _levelProgression.Count)
             {
-                // case B: 7 < Level < 19
-                // Range = [Level - 6, Level]
                 for(int iconIDX = 0; iconIDX < _LEVEL_ICON_COUNT; iconIDX++)
                 {
                     TileState icon = _levelProgression[iconIDX + (level - (_LEVEL_ICON_COUNT - 1))];
@@ -118,8 +113,6 @@ namespace LongRoadGames.PacMan
 
             else
             {
-                // case C: 18 < Level
-                // Range = [12, 18]
                 int levelIDX = 12;
                 for (int iconIDX = 0; iconIDX < _LEVEL_ICON_COUNT; iconIDX++)
                 {
@@ -128,6 +121,34 @@ namespace LongRoadGames.PacMan
                     _levelIcons[iconIDX].sprite = _fruitMap[icon];
                 }
             }
+        }
+
+        public TileState LevelState(int level) => level switch
+        {
+            0 => TileState.Cherry,
+            1 => TileState.Strawberry,
+            2 => TileState.Orange,
+            3 => TileState.Orange,
+            4 => TileState.Apple,
+            5 => TileState.Apple,
+            6 => TileState.Melon,
+            7 => TileState.Melon,
+            8 => TileState.Galaxian,
+            9 => TileState.Galaxian,
+            10 => TileState.Bell,
+            11 => TileState.Bell,
+            _ => TileState.Key,
+        };
+
+        public Sprite GetLevelSprite(int level) 
+        {
+            TileState levelState = LevelState(level);
+            return GetLevelSprite(levelState);
+        }
+
+        public Sprite GetLevelSprite(TileState state)
+        {
+            return _fruitMap[state];
         }
 
         public void SetLives(int lives)
@@ -187,9 +208,9 @@ namespace LongRoadGames.PacMan
             _txtDevNextTile.text = $"NEXT TILE: {nextTile}";
         }
 
-        public void DebugDotCounter(int dotCounter)
+        public void DebugDotCounter(int dotCounter, int maxDots)
         {
-            _txtDevDotCounter.text = $"DOT COUNTER: {dotCounter}";
+            _txtDevDotCounter.text = $"DOTS: {dotCounter}/{maxDots}";
         }
 
         public void DebugPowerPhase(bool powerPhase, int currentPhase = 0)
