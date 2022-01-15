@@ -1,6 +1,5 @@
 ﻿/*
  * Primary game-controller component for a Pac-Man facsimile.
- * Provided to Nvizzio Creations for skill assessment.
  * 
  * This class describes the game board and the play area and provides an interface for external objects
  * to discern and mutate the nature and contents of its composite tiles.
@@ -11,13 +10,9 @@
 
 #define _DEV
 
-using System;
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
-using UnityEngine.Tilemaps;
 
 namespace LongRoadGames.PacMan
 {

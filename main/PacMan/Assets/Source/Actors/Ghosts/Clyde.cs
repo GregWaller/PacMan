@@ -1,6 +1,5 @@
 ﻿/*
  * Enemy behaviour for Clyde in a Pac-Man facsimile.
- * Provided to Nvizzio Creations for skill assessment.
  * 
  * Author: Greg Waller
  * Date: 01.13.2022
@@ -21,5 +20,15 @@ namespace LongRoadGames.PacMan
     {
         protected override Vector3 _INITIAL_POSITION => new Vector3(16.0f, 16.5f, 0.0f);
         protected override Direction _INITIAL_FACING => Direction.Up;
+
+        protected override Vector3Int _chase()
+        {
+            return Vector3Int.zero;
+        }
+
+        protected override Vector3Int _scatter()
+        {
+            return Vector3Int.zero;
+        }
     }
 }

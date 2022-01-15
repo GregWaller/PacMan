@@ -1,6 +1,5 @@
 ﻿/*
  * Player behaviour for a Pac-Man facsimile.
- * Provided to Nvizzio Creations for skill assessment.
  * 
  * Author: Greg Waller
  * Date: 01.13.2022
@@ -8,11 +7,7 @@
 
 #define _DEV
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 using UnityEngine.InputSystem;
 
 namespace LongRoadGames.PacMan
@@ -23,17 +18,13 @@ namespace LongRoadGames.PacMan
         protected override Vector3 _INITIAL_POSITION => new Vector3(14.0f, 7.5f, 0.0f);
         protected override Direction _INITIAL_FACING => Direction.Right;
 
-        private const float _CELL_CENTER_THRESHOLD = 0.01f;
-        private const float _CELL_AREA_THRESHOLD = 0.35f;
-
         private PlayerInput _playerInput;
-        private Direction _currentDirection = Direction.None;
 
         public override void Update()
         {
             if (_board.LevelInProgress)
             {
-                Direction input = _currentDirection;
+                Direction input = _facing;
                 if (_playerInput.actions["Up"].IsPressed())
                 {
                     input = Direction.Up;
@@ -51,37 +42,40 @@ namespace LongRoadGames.PacMan
                     input = Direction.Left;
                 }
 
-                GameTile currentTile = _board.GetTile(transform.position);
-                bool atJunction = Vector3.Distance(transform.position, currentTile.Position) <= _CELL_CENTER_THRESHOLD;
+                GameTile currentTile = CurrentTile;
+                bool atJunction = Vector3.Distance(transform.position, currentTile.Position) <= GameTile.CELL_CENTER_THRESHOLD;
+
+#if _DEV
+                GameTile nextTile = _board.GetTileNeighbour(transform.position, _facing);
+                if (nextTile != null)
+                    _board.GUI.DebugTileStates(currentTile.CurrentState, nextTile.CurrentState);
+                else
+                    _board.GUI.DebugTileStates(currentTile.CurrentState, TileState.Empty);
+#endif
 
                 // no input has been received from the player.  
                 if (input == Direction.None)
                     return;
 
-                if (_currentDirection != input)
+                // TODO: make the junction a little more forgiving for face reversal
+
+                if (_facing != input)
                 {
                     bool inputBlocked = _board.DirectionBlocked(transform.position, input);
                     if (!inputBlocked && atJunction)
                     {
-                        _currentDirection = input;
+                        _facing = input;
                         _face(input);
                         _direction = _directionMap(input);
                     }
                 }
-                else
-                {
-                    bool pathBlocked = _board.DirectionBlocked(transform.position, _currentDirection);
-                    if (pathBlocked && atJunction)
-                        _direction = Vector3.zero;
-                }
+
+                bool pathBlocked = _board.DirectionBlocked(transform.position, _facing);
+                if (pathBlocked && atJunction)
+                    _direction = Vector3.zero;
 
                 if (_direction != Vector3.zero)
                     transform.Translate(_direction * (Time.deltaTime * _speed));
-
-#if _DEV
-                GameTile nextTile = _board.GetTileNeighbour(transform.position, _currentDirection);
-                _board.GUI.DebugTileStates(currentTile.CurrentState, nextTile.CurrentState);
-#endif
 
                 if (currentTile.CurrentState == TileState.Dot || currentTile.CurrentState == TileState.PDot)
                     _board.ConsumeDot(currentTile);
@@ -103,8 +97,8 @@ namespace LongRoadGames.PacMan
 
         public override void Begin()
         {
-            _currentDirection = Direction.Right;
-            _direction = _directionMap(_currentDirection);
+            _facing = Direction.Right;
+            _direction = _directionMap(_facing);
         }
     }
 }

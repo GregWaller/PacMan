@@ -1,6 +1,5 @@
 ﻿/*
  * Primary game-controller component for a Pac-Man facsimile.
- * Provided to Nvizzio Creations for skill assessment.
  * 
  * This class describes the game board and the play area and provides an interface for external objects
  * to discern and mutate the nature and contents of its composite tiles.
@@ -10,7 +9,6 @@
  */
 
 #define _DEV
-//#define _DEV_LEVELPROGRESSION
 
 using System;
 using System.Linq;
@@ -24,38 +22,47 @@ namespace LongRoadGames.PacMan
     {
         None,
         Up,
+        Right,
         Down,
         Left,
-        Right,
     };
 
     public class Gameboard : MonoBehaviour
     {
+        // ----- GUI
         public Tilemap Tilemap;
+        public Tile DotTile { get; private set; }
+        public Tile PDotTile { get; private set; }
+        public Tile EmptyTile { get; private set; }
+        public UIController GUI { get; private set; }
+
+        // ----- ACTORS
         public PacMan PacMan;
         public Blinky Blinky;
         public Inky Inky;
         public Pinky Pinky;
         public Clyde Clyde;
 
-        public Tile DotTile { get; private set; }
-        public Tile PDotTile { get; private set; }
-        public Tile EmptyTile { get; private set; }
-        public UIController GUI { get; private set; }
+        // ----- PLAY AREA
         private const int _BOARD_WIDTH = 28;
         private const int _BOARD_HEIGHT = 31;
         private Dictionary<Vector3Int, GameTile> _playArea;
 
+        // ----- POWER PHASES
         public bool PowerPhase { get; private set; } = false;
-        private float _powerPhaseDuration = 10.0f;
         private int _currentPowerPhase = 0;
-        
-        private int _dotCounter = 0;
-        private int _points = 0;
-        private int _currentLevel = 0;
-
-        public bool LevelInProgress { get; private set; } = false;
         private float _readyCountdown = 5.0f;
+
+        // ----- LEVEL PHASE AND STRATEGY
+        public bool LevelInProgress { get; private set; } = false;
+        public int CurrentLevel { get; private set; } = 0;
+        public Strategy LevelStrategy { get; private set; }
+        protected int _levelPhase;
+        protected float _phaseTimer = 0.0f;
+
+        // ---- SCORING
+        private int _points = 0;
+        public int DotsRemaining { get; private set; } = 0;
 
         public void Start()
         {
@@ -71,23 +78,21 @@ namespace LongRoadGames.PacMan
 
             _initialize_board();
             _initialize_actors();
+            _reset_dots();
+            _reset_phase();
 
-#if _DEV_LEVELPROGRESSION
-            _clear_board();
-#endif
-            _reset_board();
+            CurrentLevel = 0;
+            GUI.SetLevel(CurrentLevel);
 
-            _currentLevel = 0;
             _readyCountdown = 3.0f;
             GUI.ShowReady(true);
-            GUI.SetLevel(_currentLevel);
         }
 
         public void Update()
         {
 #if _DEV
             GUI.DebugPowerPhase(PowerPhase, _currentPowerPhase);
-            GUI.DebugDotCounter(_dotCounter);
+            GUI.DebugDotCounter(DotsRemaining);
 #endif
 
             if (!LevelInProgress)
@@ -98,13 +103,16 @@ namespace LongRoadGames.PacMan
                     LevelInProgress = true;
                     _readyCountdown = 0.0f;
 
-                    // set pac-man in motion, by nudging him into 
+                    // set pac-man in motion 
                     PacMan.Begin();
+                    Blinky.Begin();
                     GUI.ShowReady(false);
                 }
             }
             else
             {
+                _update_phase();
+
                 if (PowerPhase)
                 {
                     // we'll count down the power phase duration and terminate it.
@@ -155,9 +163,9 @@ namespace LongRoadGames.PacMan
             Clyde.Initialize(this);
         }
 
-        private void _reset_board()
+        private void _reset_dots()
         {
-            _dotCounter = 0;
+            DotsRemaining = 0;
 #if _DEV_LEVELPROGRESSION
 
             // we're going to add a single dot to 20, 7, 0
@@ -169,7 +177,7 @@ namespace LongRoadGames.PacMan
             {
                 gameTile.Reset();
                 if (gameTile.CurrentState == TileState.Dot || gameTile.CurrentState == TileState.PDot)
-                    _dotCounter++;
+                    DotsRemaining++;
             }
 #endif
 
@@ -177,22 +185,19 @@ namespace LongRoadGames.PacMan
 
         private void _reset_actors()
         {
-            PacMan.ResetPosition();
-            Blinky.ResetPosition();
-            Inky.ResetPosition();
-            Pinky.ResetPosition();
-            Clyde.ResetPosition();
+            PacMan.Reboot();
+            Blinky.Reboot();
+            Inky.Reboot();
+            Pinky.Reboot();
+            Clyde.Reboot();
         }
 
-#if _DEV_LEVELPROGRESSION
-        private void _clear_board()
+        private void _reset_phase()
         {
-            foreach (GameTile gameTile in _playArea.Values.Where(t => t.CurrentState != TileState.Wall))
-            {
-                gameTile.SetState(TileState.Empty);
-            }
+            _levelPhase = 0;
+            _phaseTimer = CurrentLevel < 5 ? 7.0f : 5.0f;
+            LevelStrategy = Strategy.Scatter;
         }
-#endif
 
         #endregion
 
@@ -230,7 +235,11 @@ namespace LongRoadGames.PacMan
 
         public GameTile GetTileNeighbour(Vector3Int cell, Direction direction)
         {
-            return _playArea[_neighbourMap(cell, direction)];
+            Vector3Int neighbourCell = _neighbourMap(cell, direction);
+            if (_playArea.ContainsKey(neighbourCell))
+                return _playArea[neighbourCell];
+
+            return null;
         }
         public GameTile GetTileNeighbour(Vector3 point, Direction direction)
         {
@@ -266,46 +275,109 @@ namespace LongRoadGames.PacMan
             tile.SetState(TileState.Empty);
             AddPoints(isPowerDot ? 50 : 10);
 
-            _dotCounter--;
+            DotsRemaining--;
 
-            if (_dotCounter == 0)
+            if (DotsRemaining == 0)
             {
                 _reset_actors();
-                _reset_board();
-                _currentLevel++;
+                _reset_dots();
+                _reset_phase();
 
-                GUI.SetLevel(_currentLevel);
-                GUI.DebugLevel(_currentLevel);
+                CurrentLevel++;
+                GUI.SetLevel(CurrentLevel);
+                GUI.DebugLevel(CurrentLevel);
+
+                LevelInProgress = false;
+                _readyCountdown = 5.0f;
+                GUI.ShowReady(true);
 
                 return;
             }
 
             if (isPowerDot)
             {
-                // activate power phase for ghosts.
                 PowerPhase = true;
-
-                // For the first four levels, the first two scatter periods last for seven seconds each.They change to five seconds each for level
-                // five and beyond. The third scatter mode is always set to five seconds.The fourth scatter period lasts for five seconds on level one,
-                // but then is only 1 / 60th of a second for the rest of play.
-
-                // how long should this power phase be?
-                _currentPowerPhase++;
-
-                float duration = 5.0f;  // default to 5 seconds.
-
-                if (_currentLevel >= 18)
-                {
-                    duration = 0.0f; // no more frightened
-                }
-                if (_currentLevel <= 3 && _currentPowerPhase <= 2)
-                {
-                    duration += 2.0f;  // add 2 seconds for levels 0 through 3 if the current power phase is the first or second
-                }
 
             }
         }
 
-#endregion
+        #endregion
+
+        #region Level Strategy and Phases
+
+        /* 
+            Phases start with scatter and alternate for the duration of the level as follows (values in seconds)
+
+                             phase 0                 phase 1                 phase 2                 phase 3
+                             scatter     chase       scatter     chase       scatter     chase       scatter     chase       
+            level 1          7           20          7           20          5           20          5           -
+            level 2-4        7           20          7           20          5           17          .01         -
+            level 5+         5           20          5           20          5           17          .01         -
+        */
+
+        protected virtual void _update_phase()
+        {
+            if (_levelPhase < 3)
+            {
+                _phaseTimer -= Time.deltaTime;
+                if (_phaseTimer <= 0.0f)
+                {
+                    // alternate between scatter and chase
+                    LevelStrategy = LevelStrategy == Strategy.Scatter ? Strategy.Chase : Strategy.Scatter;
+
+                    // increment the phase counter every time we come back to scatter
+                    if (LevelStrategy == Strategy.Scatter)
+                        _levelPhase++;
+
+                    if (_levelPhase < 2)
+                    {
+                        if (LevelStrategy == Strategy.Chase)
+                        {
+                            _phaseTimer = 20.0f;
+                        }
+                        else if (CurrentLevel < 5)
+                        {
+                            _phaseTimer = 7.0f;
+                        }
+                        else
+                        {
+                            _phaseTimer = 5.0f;
+                        }
+                    }
+                    else if (_levelPhase == 2)
+                    {
+                        if (LevelStrategy == Strategy.Scatter)
+                        {
+                            _phaseTimer = 5.0f;
+                        }
+                        else if (CurrentLevel == 0)
+                        {
+                            _phaseTimer = 20.0f;
+                        }
+                        else
+                        {
+                            _phaseTimer = 17.0f;
+                        }
+                    }
+                    else
+                    {
+                        if (LevelStrategy == Strategy.Chase)
+                        {
+                            _phaseTimer = 0.0f;
+                        }
+                        else if (CurrentLevel == 0)
+                        {
+                            _phaseTimer = 5.0f;
+                        }
+                        else
+                        {
+                            _phaseTimer = 0.01f;
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion
     }
 }

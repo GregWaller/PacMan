@@ -1,6 +1,5 @@
 ﻿/*
  * Tile abstraction for a Pac-Man facsimile.
- * Provided to Nvizzio Creations for skill assessment.
  * 
  * This class describes tiles on the gameboard, along with their initial and current states.
  * 
@@ -31,6 +30,9 @@ namespace LongRoadGames.PacMan
 
     public class GameTile
     {
+        public static float CELL_CENTER_THRESHOLD = 0.01f;
+        public static float CELL_AREA_THRESHOLD = 0.35f;
+
         public TileState CurrentState { get; private set; }
         public Tile Tile { get; private set; }
         public Vector3Int CellPosition { get; private set; }
