@@ -19,6 +19,8 @@ namespace LongRoadGames.PacMan
 
     public class Gameboard : MonoBehaviour
     {
+        private const int _TARGET_FPS = 60;
+
         // ----- GUI
         public Tilemap Tilemap;
         public Tile DotTile { get; private set; }
@@ -34,6 +36,8 @@ namespace LongRoadGames.PacMan
         public Clyde Clyde;
 
         // ----- PLAY AREA
+        public GameTile LeftWarp { get; private set; }
+        public GameTile RightWarp { get; private set; }
         private const int _BOARD_WIDTH = 28;
         private const int _BOARD_HEIGHT = 31;
         private Dictionary<Vector3Int, GameTile> _playArea;
@@ -51,15 +55,17 @@ namespace LongRoadGames.PacMan
         protected float _phaseTimer = 0.0f;
 
         // ---- SCORING
-        private int _points = 0;
         public int DotsRemaining { get; private set; } = 0;
+        private int _points = 0;
 
         public void Start()
         {
-            Application.targetFrameRate = 60;
+            Application.targetFrameRate = _TARGET_FPS;
 
+#if DEBUG
             Debug.Assert(Tilemap != null, "CRITICAL ERROR: The gameboard cannot be null.");
             Debug.Assert(PacMan != null, "CRITICAL ERROR: PacMan cannot be null.");
+#endif
 
             GUI = gameObject.AddComponent<UIController>();
             GUI.Initialize();
@@ -144,6 +150,26 @@ namespace LongRoadGames.PacMan
                     }
                 }
             }
+
+            // warp tiles
+            // need to work for all characters
+
+            // left warp is 0, 16, 0
+            LeftWarp = _playArea[new Vector3Int(0, 16, 0)];
+            LeftWarp.OverwriteState(TileState.LeftWarp);
+
+            // exiting the left warp should transition the character to the right-most edge of the right warp 
+
+            // right warp is 27, 16, 0
+            RightWarp = _playArea[new Vector3Int(27, 16, 0)];
+            RightWarp.OverwriteState(TileState.RightWarp);
+
+            // exiting the right warp should transition the character to the left-most edge of the left warp
+
+            // warp tunnels
+            // provides a slowing effect for ghosts
+            // left warp tunnel is (1,16,0) -> (5,16,0)
+            // right warp tunnel is (22,16,0) -> (26,16,0)
         }
 
         private void _initialize_actors()
@@ -199,7 +225,10 @@ namespace LongRoadGames.PacMan
             TileState.Empty => EmptyTile,
             TileState.Dot => DotTile,
             TileState.PDot => PDotTile,
-            _ => throw new ArgumentOutOfRangeException($"CRITICAL ERROR: No tile was found for the given state: {state}."),
+            TileState.LeftWarp => EmptyTile,
+            TileState.RightWarp => EmptyTile,
+            TileState.WarpTunnel => EmptyTile,
+            _ => throw new ArgumentOutOfRangeException($"CRITICAL ERROR: No base tile was found for the state: {state}."),
         };
         private Vector3Int _neighbourMap(Vector3Int cell, Direction direction) => direction switch
         {
@@ -207,7 +236,7 @@ namespace LongRoadGames.PacMan
             Direction.Down => cell + Vector3Int.down,
             Direction.Left => cell + Vector3Int.left,
             Direction.Right => cell + Vector3Int.right,
-            _ => throw new ArgumentOutOfRangeException($"CRITICAL ERROR: No neighbour could be resolved for the direction {direction} from the perspective of the cell at {cell.x},{cell.y}."),
+            _ => throw new ArgumentOutOfRangeException($"CRITICAL ERROR: A valid direction must be supplied in order to calculate the coordinates of a tile's neighbours."),
         };
 
         public void SetTile(Vector3Int position, TileState state)
@@ -217,6 +246,9 @@ namespace LongRoadGames.PacMan
 
         public GameTile GetTile(Vector3Int cell)
         {
+#if DEBUG
+            Debug.Assert(_playArea.ContainsKey(cell), $"CRITICAL ERROR: The coordinate ({cell.x},{cell.y}) is not within the bounds of the gameboard.");
+#endif
             return _playArea[cell];
         }
         public GameTile GetTile(Vector3 point)
@@ -226,11 +258,20 @@ namespace LongRoadGames.PacMan
 
         public GameTile GetTileNeighbour(Vector3Int cell, Direction direction)
         {
-            Vector3Int neighbourCell = _neighbourMap(cell, direction);
-            if (_playArea.ContainsKey(neighbourCell))
-                return _playArea[neighbourCell];
+            Vector3Int neighbourCell = cell;
+            GameTile currentTile = _playArea[cell];
 
-            return null;
+            if (currentTile == LeftWarp)
+                neighbourCell = RightWarp.CellPosition;
+            else if (currentTile == RightWarp)
+                neighbourCell = LeftWarp.CellPosition;
+            else
+                neighbourCell = _neighbourMap(cell, direction);
+
+#if DEBUG
+            Debug.Assert(_playArea.ContainsKey(neighbourCell), $"CRITICAL ERROR: Could not determine the {direction} neighbour of ({cell.x}{cell.y}) as the neighbour coordinate is not within the bounds of the gameboard.");
+#endif
+            return _playArea[neighbourCell];
         }
         public GameTile GetTileNeighbour(Vector3 point, Direction direction)
         {
@@ -240,7 +281,7 @@ namespace LongRoadGames.PacMan
 
         public bool DirectionBlocked(Vector3Int cellPos, Direction direction)
         {
-            GameTile gameTile = GetTile(_neighbourMap(cellPos, direction));
+            GameTile gameTile = GetTileNeighbour(cellPos, direction);
             return gameTile.CurrentState == TileState.Wall;
         }
         public bool DirectionBlocked(Vector3 position, Direction direction)

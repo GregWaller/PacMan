@@ -5,8 +5,14 @@ namespace LongRoadGames.PacMan
 {
     public enum TileState
     {
+        // --- Environment Cues
         Empty = 0,
         Wall = 1,
+        LeftWarp = 2,
+        RightWarp = 3,
+        WarpTunnel = 4,
+
+        // --- Scoring
         Dot = 10,
         PDot = 50,
         Cherry = 100,
@@ -21,7 +27,7 @@ namespace LongRoadGames.PacMan
 
     public class GameTile
     {
-        public static float CELL_CENTER_THRESHOLD = 0.1f;
+        public static float CELL_COLLISION_THRESHOLD = 0.1f;
         public static float CELL_AREA_THRESHOLD = 0.35f;
 
         public TileState CurrentState { get; private set; }
@@ -39,6 +45,12 @@ namespace LongRoadGames.PacMan
             CellPosition = position;
             _originalState = CurrentState = state;
             Tile = tile;
+        }
+
+        public void OverwriteState(TileState state)
+        {
+            _originalState = state;
+            SetState(state);
         }
 
         public void SetState(TileState state)

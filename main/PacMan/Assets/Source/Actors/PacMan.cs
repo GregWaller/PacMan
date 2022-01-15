@@ -36,20 +36,17 @@ namespace LongRoadGames.PacMan
                 }
 
                 GameTile currentTile = CurrentTile;
-                bool atJunction = Vector3.Distance(transform.position, currentTile.Position) <= GameTile.CELL_CENTER_THRESHOLD;
+                bool atJunction = Vector3.Distance(transform.position, currentTile.Position) <= GameTile.CELL_COLLISION_THRESHOLD;
 
 #if _DEV
                 GameTile nextTile = _board.GetTileNeighbour(transform.position, Facing);
-                if (nextTile != null)
-                    _board.GUI.DebugTileStates(currentTile.CurrentState, nextTile.CurrentState);
-                else
-                    _board.GUI.DebugTileStates(currentTile.CurrentState, TileState.Empty);
+                _board.GUI.DebugTileStates(currentTile.CurrentState, nextTile.CurrentState);
 #endif
 
                 if (input == Direction.None)
                     return;
 
-                // TODO: make the junction a little more forgiving for face reversal
+                // TODO: make the junction threshold a little more forgiving for face reversal
 
                 if (Facing != input)
                 {
@@ -66,11 +63,15 @@ namespace LongRoadGames.PacMan
                 if (pathBlocked && atJunction)
                     _direction = Vector3.zero;
 
+                if (currentTile.CurrentState == TileState.Dot || currentTile.CurrentState == TileState.PDot)
+                    _board.ConsumeDot(currentTile);
+
+                _check_warp(currentTile);
+
                 if (_direction != Vector3.zero)
                     transform.Translate(_direction * (Time.deltaTime * _speed));
 
-                if (currentTile.CurrentState == TileState.Dot || currentTile.CurrentState == TileState.PDot)
-                    _board.ConsumeDot(currentTile);
+                _check_new_tile(currentTile);
             }
         }
 
@@ -86,7 +87,7 @@ namespace LongRoadGames.PacMan
         public override void Begin()
         {
             Facing = Direction.Right;
-            _direction = _directionMap(Facing);
+            base.Begin();
         }
     }
 }

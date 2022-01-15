@@ -40,50 +40,24 @@ namespace LongRoadGames.PacMan
                 {
                     GameTile currentTile = CurrentTile;
 
-                    bool atJunction = Vector3.Distance(transform.position, currentTile.Position) <= GameTile.CELL_CENTER_THRESHOLD;
+                    bool atJunction = Vector3.Distance(transform.position, currentTile.Position) <= GameTile.CELL_COLLISION_THRESHOLD;
 
                     if (atJunction)
                     {
+                        // FIXME: it appears as though ghosts are still making multiple decisions for a given tile.
+
                         _select_target();
                         GameTile neighbour = _board.GetTileNeighbour(currentTile.CellPosition, Facing);
-                        Debug.Log($"{this.name} is deciding a target for the tile at {currentTile.CellPosition} with the {Facing} neighbour is {neighbour.CurrentState}");
+                        //Debug.Log($"{name} is deciding a target for the tile at {currentTile.CellPosition} with the {Facing} neighbour is {neighbour.CurrentState}");
                     }
-                        
-                        
-                    transform.Translate(_direction * (Time.deltaTime * _speed));
 
+                    _check_warp(currentTile);
+                    transform.Translate(_direction * (Time.deltaTime * _speed));
+                    _check_new_tile(currentTile);
                 }
                 else
                 {
-                    if (_spawning)
-                    {
-                        float distanceToTarget = Vector3.Distance(transform.position, _spawnTransitionTarget);
-
-                        if (_spawnStage == 0 && distanceToTarget <= 0.01f)
-                        {
-                            _spawnStage = 1;
-                            _spawnTransitionTarget = _ghostHomeDoor;
-                        }
-                        else if (_spawnStage == 1 && distanceToTarget <= 0.01f)
-                        {
-                            _spawning = false;
-                            Begin();
-                        }
-
-                        Vector3 direction = (_spawnTransitionTarget - transform.position).normalized;
-                        transform.Translate(direction * (Time.deltaTime * _speed));
-                    }
-                    else
-                    {
-                        _spawnTimer -= Time.deltaTime;
-                        if (_spawnTimer <= 0.0f)
-                        {
-                            _spawning = true;
-                            _spawnTimer = 0.0f;
-                            _spawnStage = 0;
-                            _spawnTransitionTarget = _ghostHomeCenter;
-                        }
-                    }
+                    _update_spawn();
                 }
             }
         }
@@ -109,7 +83,7 @@ namespace LongRoadGames.PacMan
             _active = true;
             _speed = 4.5f;
             _select_target();
-            _direction = _directionMap(Facing);
+            base.Begin();
         }
 
         public override void Reboot()
@@ -117,6 +91,40 @@ namespace LongRoadGames.PacMan
             base.Reboot();
             _active = false;
             _spawnTimer = _INITIAL_SPAWN_TIMER;
+        }
+
+        private void _update_spawn()
+        {
+            if (_spawning)
+            {
+                float distanceToTarget = Vector3.Distance(transform.position, _spawnTransitionTarget);
+
+                if (_spawnStage == 0 && distanceToTarget <= 0.01f)
+                {
+                    _spawnStage = 1;
+                    _spawnTransitionTarget = _ghostHomeDoor;
+                }
+                else if (_spawnStage == 1 && distanceToTarget <= 0.01f)
+                {
+                    _spawning = false;
+                    Begin();
+                }
+
+                Vector3 direction = (_spawnTransitionTarget - transform.position).normalized;
+                transform.Translate(direction * (Time.deltaTime * _speed));
+            }
+            else
+            {
+                _spawnTimer -= Time.deltaTime;
+                if (_spawnTimer <= 0.0f)
+                {
+                    _spawning = true;
+                    _spawnTimer = 0.0f;
+                    _spawnStage = 0;
+                    _spawnTransitionTarget = _ghostHomeCenter;
+                }
+            }
+
         }
 
         protected void _select_target()
