@@ -21,6 +21,7 @@ namespace LongRoadGames.PacMan
     public class Gameboard : MonoBehaviour
     {
         private const int _TARGET_FPS = 60;
+        private const string _HIGHSCORE_KEY = "HighScore";
 
         // ----- GUI
         public Tilemap Tilemap;
@@ -60,7 +61,8 @@ namespace LongRoadGames.PacMan
         // ----- Scoring
         public int DotsRemaining { get; private set; } = 0;
         private int _maxDots = 0;
-        private int _points = 0;
+        private int _score = 0;
+        private int _highScore = 0;
         private float _readyCountdown = 5.0f;
         private int _fruitSpawn = 0;
 
@@ -137,13 +139,16 @@ namespace LongRoadGames.PacMan
             _readyCountdown = 3.0f;
             GUI.ShowReady(true);
 
-            GUI.SetLives(PacMan.Lives);
+            GUI.SetLives(PacMan.ExtraLives);
         }
 
         public void ResetGame()
         {
-            _points = 0;
+            _score = 0;
             GUI.SetScore(0);
+
+            _highScore = PlayerPrefs.GetInt(_HIGHSCORE_KEY, 0);
+            GUI.SetHighScore(_highScore);
 
             CurrentLevel = 0;
             GUI.SetLevel(CurrentLevel);
@@ -326,10 +331,17 @@ namespace LongRoadGames.PacMan
 
         public void AddPoints(int points)
         {
-            _points += points;
-            GUI.SetScore(_points);
+            _score += points;
+            GUI.SetScore(_score);
 
-            if (_points >= 10000)
+            if (_score > _highScore)
+            {
+                _highScore = _score;
+                PlayerPrefs.SetInt(_HIGHSCORE_KEY, _highScore);
+                GUI.SetHighScore(_highScore);
+            }
+
+            if (_score >= 10000)
                 PacMan.BonusLife();
         }
 
