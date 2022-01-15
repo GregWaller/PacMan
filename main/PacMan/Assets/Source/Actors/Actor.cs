@@ -25,15 +25,16 @@ namespace LongRoadGames.PacMan
         {
             _board = board;
             _animator = GetComponent<Animator>();
-            
-            Reboot();
+
+            ResetPosition();
         }
 
-        public virtual void Reboot()
+        public virtual void ResetPosition()
         {
             Facing = _INITIAL_FACING;
             _direction = Vector3.zero;
             Warp(_INITIAL_POSITION, _INITIAL_FACING);
+            _previousTile = null;
         }
 
         public virtual void Begin() 

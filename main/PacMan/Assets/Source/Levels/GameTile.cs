@@ -28,7 +28,6 @@ namespace LongRoadGames.PacMan
     public class GameTile
     {
         public static float CELL_COLLISION_THRESHOLD = 0.1f;
-        public static float CELL_AREA_THRESHOLD = 0.35f;
 
         public TileState CurrentState { get; private set; }
         public Tile Tile { get; private set; }

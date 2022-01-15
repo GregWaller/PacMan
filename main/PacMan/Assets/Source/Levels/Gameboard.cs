@@ -28,33 +28,33 @@ namespace LongRoadGames.PacMan
         public Tile EmptyTile { get; private set; }
         public UIController GUI { get; private set; }
 
-        // ----- ACTORS
+        // ----- Actors
         public PacMan PacMan;
         public Blinky Blinky;
         public Inky Inky;
         public Pinky Pinky;
         public Clyde Clyde;
 
-        // ----- PLAY AREA
+        // ----- Play Area
         public GameTile LeftWarp { get; private set; }
         public GameTile RightWarp { get; private set; }
         private const int _BOARD_WIDTH = 28;
         private const int _BOARD_HEIGHT = 31;
         private Dictionary<Vector3Int, GameTile> _playArea;
 
-        // ----- POWER PHASES
+        // ----- Power Phases
         public bool PowerPhase { get; private set; } = false;
         private int _currentPowerPhase = 0;
         private float _readyCountdown = 5.0f;
 
-        // ----- LEVEL PHASE AND STRATEGY
+        // ----- Level Phase and Strategy
         public bool LevelInProgress { get; private set; } = false;
         public int CurrentLevel { get; private set; } = 0;
         public Strategy LevelStrategy { get; private set; }
         protected int _levelPhase;
         protected float _phaseTimer = 0.0f;
 
-        // ---- SCORING
+        // ----- Scoring
         public int DotsRemaining { get; private set; } = 0;
         private int _points = 0;
 
@@ -76,14 +76,8 @@ namespace LongRoadGames.PacMan
 
             _initialize_board();
             _initialize_actors();
-            _reset_dots();
-            _reset_phase();
 
-            CurrentLevel = 0;
-            GUI.SetLevel(CurrentLevel);
-
-            _readyCountdown = 3.0f;
-            GUI.ShowReady(true);
+            ResetGame();
         }
 
         public void Update()
@@ -122,6 +116,32 @@ namespace LongRoadGames.PacMan
         }
 
         #region Board Initialization and Setup
+
+        public void ResetLevel(bool resetDots)
+        {
+            if (resetDots) _reset_dots();
+            _reset_actors();
+            _reset_phase();
+
+            LevelInProgress = false;
+            _readyCountdown = 3.0f;
+            GUI.ShowReady(true);
+
+            GUI.SetLives(PacMan.Lives);
+        }
+
+        public void ResetGame()
+        {
+            _points = 0;
+            GUI.SetScore(0);
+
+            CurrentLevel = 0;
+            GUI.SetLevel(CurrentLevel);
+
+            // TODO: GUI.ShowGameOver(true);  // do an insert coin thing.  
+            PacMan.ResetLives();
+            ResetLevel(true);
+        }
 
         private void _initialize_board()
         {
@@ -192,11 +212,11 @@ namespace LongRoadGames.PacMan
 
         private void _reset_actors()
         {
-            PacMan.Reboot();
-            Blinky.Reboot();
-            Inky.Reboot();
-            Pinky.Reboot();
-            Clyde.Reboot();
+            PacMan.ResetPosition();
+            Blinky.ResetPosition();
+            Inky.ResetPosition();
+            Pinky.ResetPosition();
+            Clyde.ResetPosition();
         }
 
         private void _reset_phase()
@@ -301,9 +321,7 @@ namespace LongRoadGames.PacMan
 
             if (DotsRemaining == 0)
             {
-                _reset_actors();
-                _reset_dots();
-                _reset_phase();
+                ResetLevel(true);
 
                 CurrentLevel++;
                 GUI.SetLevel(CurrentLevel);

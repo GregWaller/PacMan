@@ -13,6 +13,9 @@ namespace LongRoadGames.PacMan
 
         private PlayerInput _playerInput;
 
+        public int Lives { get; private set; } = _DEFAULT_LIFE_COUNT;
+        private const int _DEFAULT_LIFE_COUNT = 3;
+
         public override void Update()
         {
             if (_board.LevelInProgress)
@@ -89,5 +92,30 @@ namespace LongRoadGames.PacMan
             Facing = Direction.Right;
             base.Begin();
         }
+
+        #region Lives
+
+        public void ResetLives()
+        {
+            Lives = _DEFAULT_LIFE_COUNT;
+        }
+
+        public void BonusLife()
+        {
+            Lives++;
+            _board.GUI.SetLives(Lives);
+        }
+
+        public void Capture()
+        {
+            Lives--;
+
+            if (Lives > 0)
+                _board.ResetLevel(false);
+            else
+                _board.ResetGame();
+        }
+
+        #endregion
     }
 }

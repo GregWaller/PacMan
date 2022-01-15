@@ -8,6 +8,7 @@ namespace LongRoadGames.PacMan
 {
     public class UIController : MonoBehaviour
     {
+        // ----- Developer Controls
         private Text _txtDevCurrentLevel;
         private Text _txtDevCurrentTile;
         private Text _txtDevNextTile;
@@ -15,11 +16,13 @@ namespace LongRoadGames.PacMan
         private Text _txtDevPowerPhase;
         private Text _txtDevCurrentPowerPhase;
 
+        // ----- Gameplay Readouts
         private Text _txtCurrentScore;
         private Text _txtHighScore;
         private Text _txtReady;
 
-        private const int _ICON_COUNT = 7;
+        // ----- Level Indicators
+        private const int _LEVEL_ICON_COUNT = 7;
         private readonly List<TileState> _levelProgression = new List<TileState>
         {
             TileState.Cherry,
@@ -45,15 +48,22 @@ namespace LongRoadGames.PacMan
         private Dictionary<TileState, Sprite> _fruitMap;
         private List<Image> _levelIcons;
 
+        // ----- Life Indicators
+        private const int _LIFE_ICON_COUNT = 5;
+        private Sprite _lifeIcon;
+        private List<Image> _lifeIcons;
+
         public void Initialize()
         {
             _initialize_dev_controls();
 
+            // ----- Gameplay Readouts
             _txtCurrentScore = transform.Find("Canvas/pnlScore/pnlCurrentScore/Text").gameObject.GetComponent<Text>();
             _txtHighScore = transform.Find("Canvas/pnlScore/pnlHighScore/Text").gameObject.GetComponent<Text>();
             _txtReady = transform.Find("Canvas/pnlReady/Text").gameObject.GetComponent<Text>();
             _txtReady.gameObject.SetActive(false);
 
+            // ----- Level Indicators
             Sprite[] fruitSprites = Resources.LoadAll<Sprite>("Sprites/level_icons");
             _fruitMap = new Dictionary<TileState, Sprite>
             {
@@ -66,15 +76,21 @@ namespace LongRoadGames.PacMan
                 { TileState.Bell, fruitSprites[6] },
                 { TileState.Key, fruitSprites[7] },
             };
-
             _levelIcons = new List<Image>();
-            for(int i = 0; i < _ICON_COUNT; i++)
+            for(int i = 0; i < _LEVEL_ICON_COUNT; i++)
                 _levelIcons.Add(transform.Find("Canvas/pnlLevelIndicator/Icon_" + i).gameObject.GetComponent<Image>());
+
+            // ----- Life Indicators
+            Sprite[] lifeSprites = Resources.LoadAll<Sprite>("Sprites/pacman_move");
+            _lifeIcon = lifeSprites[1];
+            _lifeIcons = new List<Image>();
+            for(int i = 0; i < _LIFE_ICON_COUNT; i++)
+                _lifeIcons.Add(transform.Find("Canvas/pnlLivesIndicator/Icon_" + i).gameObject.GetComponent<Image>()); 
         }
 
         public void SetLevel(int level)
         {
-            if (level < _ICON_COUNT)
+            if (level < _LEVEL_ICON_COUNT)
             {
                 int iconIDX = 0;
                 for(; iconIDX <= level; iconIDX++)
@@ -84,7 +100,7 @@ namespace LongRoadGames.PacMan
                     _levelIcons[iconIDX].sprite = _fruitMap[icon];
                 }
 
-                for(; iconIDX < _ICON_COUNT; iconIDX++)
+                for(; iconIDX < _LEVEL_ICON_COUNT; iconIDX++)
                     _levelIcons[iconIDX].gameObject.SetActive(false);
             }
 
@@ -92,9 +108,9 @@ namespace LongRoadGames.PacMan
             {
                 // case B: 7 < Level < 19
                 // Range = [Level - 6, Level]
-                for(int iconIDX = 0; iconIDX < _ICON_COUNT; iconIDX++)
+                for(int iconIDX = 0; iconIDX < _LEVEL_ICON_COUNT; iconIDX++)
                 {
-                    TileState icon = _levelProgression[iconIDX + (level - (_ICON_COUNT - 1))];
+                    TileState icon = _levelProgression[iconIDX + (level - (_LEVEL_ICON_COUNT - 1))];
                     _levelIcons[iconIDX].gameObject.SetActive(true);
                     _levelIcons[iconIDX].sprite = _fruitMap[icon];
                 }
@@ -105,7 +121,7 @@ namespace LongRoadGames.PacMan
                 // case C: 18 < Level
                 // Range = [12, 18]
                 int levelIDX = 12;
-                for (int iconIDX = 0; iconIDX < _ICON_COUNT; iconIDX++)
+                for (int iconIDX = 0; iconIDX < _LEVEL_ICON_COUNT; iconIDX++)
                 {
                     TileState icon = _levelProgression[levelIDX++];
                     _levelIcons[iconIDX].gameObject.SetActive(true);
@@ -116,7 +132,12 @@ namespace LongRoadGames.PacMan
 
         public void SetLives(int lives)
         {
+            int iconIDX = 0;
+            for(; iconIDX < lives; iconIDX++)
+                _lifeIcons[iconIDX].gameObject.SetActive(true);
 
+            for (; iconIDX < _LIFE_ICON_COUNT; iconIDX++)
+                _lifeIcons[iconIDX].gameObject.SetActive(false);
         }
 
         public void SetScore(int score)
