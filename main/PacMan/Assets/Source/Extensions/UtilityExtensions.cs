@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Tilemaps;
 
 namespace LongRoadGames.PacMan
 {
     public static class UtilityExtensions
     {
+        private readonly static Random _rng = new Random();
+
         public static Direction Left(this Direction direction)
         {
             if (direction - 1 == Direction.None)
@@ -30,6 +29,11 @@ namespace LongRoadGames.PacMan
                 return direction - 2;
 
             return direction + 2;
+        }
+
+        public static T Random<T>(this List<T> list)
+        {
+            return list[_rng.Next(list.Count)];
         }
     }
 }

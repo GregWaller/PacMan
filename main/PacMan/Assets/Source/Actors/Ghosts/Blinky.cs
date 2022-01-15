@@ -13,8 +13,22 @@ namespace LongRoadGames.PacMan
         // Level            0       1       2-4     5-7     8-10    11-13   14-17   18+
         // Dots Remaining   20      30      40      50      60      80      100     120
 
+        public override void Begin()
+        {
+            _spawnTimer = _INITIAL_SPAWN_TIMER;
+            _spawnStage = 0;
+            _spawning = false;
+            _awaitingSpawn = false;
+            _respawning = false;
+
+            base.Begin();
+        }
+
         protected override Strategy _select_strategy()
         {
+            if (_currentStrategy == Strategy.Eaten || _currentStrategy == Strategy.Frightened)
+                return _currentStrategy;
+
             int level = _board.CurrentLevel;
             int dotsRemaining = _board.DotsRemaining;
 

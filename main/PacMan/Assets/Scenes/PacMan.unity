@@ -1544,7 +1544,7 @@ RectTransform:
   m_Children:
   - {fileID: 1831769053}
   m_Father: {fileID: 1330818815}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -5451,9 +5451,9 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1105814942}
+  - {fileID: 1384676322}
   - {fileID: 762551936}
   - {fileID: 2051248829}
-  - {fileID: 1384676322}
   - {fileID: 1140717930}
   - {fileID: 1078364955}
   m_Father: {fileID: 745301141}
@@ -5580,7 +5580,7 @@ RectTransform:
   m_Children:
   - {fileID: 160515461}
   m_Father: {fileID: 1330818815}
-  m_RootOrder: 3
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -5766,6 +5766,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cc201e7a7f7e6b488cacfdb4d26165b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FrightenedAnimatorController: {fileID: 9100000, guid: 6bf18937c70aa2f4183a3814e735904e, type: 2}
+  EatenAnimatorController: {fileID: 9100000, guid: 8c93e2b15b1c9824faccf78dc6c981b0, type: 2}
 --- !u!1 &1444480982
 GameObject:
   m_ObjectHideFlags: 0
@@ -6767,6 +6769,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f3de3bc6dc5ce54390a5212bb42e75b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FrightenedAnimatorController: {fileID: 9100000, guid: 6bf18937c70aa2f4183a3814e735904e, type: 2}
+  EatenAnimatorController: {fileID: 9100000, guid: 8c93e2b15b1c9824faccf78dc6c981b0, type: 2}
 --- !u!1 &1942304522
 GameObject:
   m_ObjectHideFlags: 0
@@ -7088,6 +7092,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6709af163417b6d4893ae629e0f2d9da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FrightenedAnimatorController: {fileID: 9100000, guid: 6bf18937c70aa2f4183a3814e735904e, type: 2}
+  EatenAnimatorController: {fileID: 9100000, guid: 8c93e2b15b1c9824faccf78dc6c981b0, type: 2}
 --- !u!1 &2046240498
 GameObject:
   m_ObjectHideFlags: 0
@@ -7282,6 +7288,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a91e59ffda717664da05be2016e92f74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FrightenedAnimatorController: {fileID: 9100000, guid: 6bf18937c70aa2f4183a3814e735904e, type: 2}
+  EatenAnimatorController: {fileID: 9100000, guid: 8c93e2b15b1c9824faccf78dc6c981b0, type: 2}
 --- !u!1 &2051248828
 GameObject:
   m_ObjectHideFlags: 0
@@ -7314,7 +7322,7 @@ RectTransform:
   m_Children:
   - {fileID: 1942304523}
   m_Father: {fileID: 1330818815}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}

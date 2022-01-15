@@ -25,8 +25,6 @@ namespace LongRoadGames.PacMan
         {
             _board = board;
             _animator = GetComponent<Animator>();
-
-            ResetPosition();
         }
 
         public virtual void ResetPosition()
@@ -117,7 +115,7 @@ namespace LongRoadGames.PacMan
             }
         }
 
-        protected void _face(Direction facing)
+        protected virtual void _face(Direction facing)
         {
             _animator.SetTrigger(facing.ToString());
             Facing = facing;

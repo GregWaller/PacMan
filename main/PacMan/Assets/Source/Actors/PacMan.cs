@@ -67,7 +67,10 @@ namespace LongRoadGames.PacMan
                     _direction = Vector3.zero;
 
                 if (currentTile.CurrentState == TileState.Dot || currentTile.CurrentState == TileState.PDot)
-                    _board.ConsumeDot(currentTile);
+                {
+                    if (!_board.ConsumeDot(currentTile))
+                        return;
+                }
 
                 _check_warp(currentTile);
 
