@@ -23,6 +23,9 @@ namespace LongRoadGames.PacMan
 
     public abstract class Actor : MonoBehaviour
     {
+        protected abstract Vector3 _INITIAL_POSITION { get; }
+        protected abstract Direction _INITIAL_FACING { get; }
+
         protected float _speed = 0.0f;
 
         protected Animator _animator;
@@ -36,11 +39,24 @@ namespace LongRoadGames.PacMan
         {
             _board = board;
             _animator = GetComponent<Animator>();
+            _speed = 3.0f;
+            ResetPosition();
         }
+
+        public void ResetPosition()
+        {
+            Warp(_INITIAL_POSITION, _INITIAL_FACING);
+        }
+
+        public virtual void Begin() { }
 
         public void Warp(GameTile tile, Direction facing)
         {
-            transform.SetPositionAndRotation(tile.Position, Quaternion.Euler(0.0f, 0.0f, 0.0f));
+            Warp(tile.Position, facing);
+        }
+        public void Warp(Vector3 position, Direction facing)
+        {
+            transform.SetPositionAndRotation(position, Quaternion.Euler(0.0f, 0.0f, 0.0f));
             _face(facing);
         }
 

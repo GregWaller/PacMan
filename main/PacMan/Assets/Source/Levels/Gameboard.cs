@@ -31,27 +31,31 @@ namespace LongRoadGames.PacMan
 
     public class Gameboard : MonoBehaviour
     {
-        private const int _BOARD_WIDTH = 28;
-        private const int _BOARD_HEIGHT = 31;
-        private static Vector3Int _PLAYER_START = new Vector3Int(14, 7, 0);
-
         public Tilemap Tilemap;
         public PacMan PacMan;
+        public Blinky Blinky;
+        public Inky Inky;
+        public Pinky Pinky;
+        public Clyde Clyde;
 
         public Tile DotTile { get; private set; }
         public Tile PDotTile { get; private set; }
         public Tile EmptyTile { get; private set; }
         public UIController GUI { get; private set; }
+        private const int _BOARD_WIDTH = 28;
+        private const int _BOARD_HEIGHT = 31;
+        private Dictionary<Vector3Int, GameTile> _playArea;
 
         public bool PowerPhase { get; private set; } = false;
         private float _powerPhaseDuration = 10.0f;
         private int _currentPowerPhase = 0;
-
-        private Dictionary<Vector3Int, GameTile> _playArea;
+        
         private int _dotCounter = 0;
+        private int _points = 0;
+        private int _currentLevel = 0;
 
-        private int _points;
-        private int _currentLevel = 1;
+        public bool LevelInProgress { get; private set; } = false;
+        private float _readyCountdown = 5.0f;
 
         public void Start()
         {
@@ -66,16 +70,17 @@ namespace LongRoadGames.PacMan
             EmptyTile = Instantiate(Resources.Load<Tile>("Sprites/Empty"));
 
             _initialize_board();
+            _initialize_actors();
+
 #if _DEV_LEVELPROGRESSION
             _clear_board();
 #endif
             _reset_board();
 
             _currentLevel = 0;
+            _readyCountdown = 3.0f;
+            GUI.ShowReady(true);
             GUI.SetLevel(_currentLevel);
-
-            PacMan.Initialize(this);
-            PacMan.Warp(GetTile(_PLAYER_START), Direction.Right);
         }
 
         public void Update()
@@ -84,12 +89,29 @@ namespace LongRoadGames.PacMan
             GUI.DebugPowerPhase(PowerPhase, _currentPowerPhase);
             GUI.DebugDotCounter(_dotCounter);
 #endif
-            if (PowerPhase)
+
+            if (!LevelInProgress)
             {
-                // we'll count down the power phase duration and terminate it.
+                _readyCountdown -= Time.deltaTime;
+                if (_readyCountdown <= 0.0f)
+                {
+                    LevelInProgress = true;
+                    _readyCountdown = 0.0f;
 
-                
+                    // set pac-man in motion, by nudging him into 
+                    PacMan.Begin();
+                    GUI.ShowReady(false);
+                }
+            }
+            else
+            {
+                if (PowerPhase)
+                {
+                    // we'll count down the power phase duration and terminate it.
 
+
+
+                }
             }
         }
 
@@ -124,6 +146,15 @@ namespace LongRoadGames.PacMan
             }
         }
 
+        private void _initialize_actors()
+        {
+            PacMan.Initialize(this);
+            Blinky.Initialize(this);
+            Inky.Initialize(this);
+            Pinky.Initialize(this);
+            Clyde.Initialize(this);
+        }
+
         private void _reset_board()
         {
             _dotCounter = 0;
@@ -142,6 +173,15 @@ namespace LongRoadGames.PacMan
             }
 #endif
 
+        }
+
+        private void _reset_actors()
+        {
+            PacMan.ResetPosition();
+            Blinky.ResetPosition();
+            Inky.ResetPosition();
+            Pinky.ResetPosition();
+            Clyde.ResetPosition();
         }
 
 #if _DEV_LEVELPROGRESSION
@@ -230,10 +270,7 @@ namespace LongRoadGames.PacMan
 
             if (_dotCounter == 0)
             {
-                PacMan.Warp(GetTile(_PLAYER_START), Direction.Right);
-
-                // 1b. warp ghosts to the ghost house
-
+                _reset_actors();
                 _reset_board();
                 _currentLevel++;
 

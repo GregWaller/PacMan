@@ -32,6 +32,7 @@ namespace LongRoadGames.PacMan
 
         private Text _txtCurrentScore;
         private Text _txtHighScore;
+        private Text _txtReady;
 
         private const int _ICON_COUNT = 7;
         private readonly List<TileState> _levelProgression = new List<TileState>
@@ -65,6 +66,8 @@ namespace LongRoadGames.PacMan
 
             _txtCurrentScore = transform.Find("Canvas/pnlScore/pnlCurrentScore/Text").gameObject.GetComponent<Text>();
             _txtHighScore = transform.Find("Canvas/pnlScore/pnlHighScore/Text").gameObject.GetComponent<Text>();
+            _txtReady = transform.Find("Canvas/pnlReady/Text").gameObject.GetComponent<Text>();
+            _txtReady.gameObject.SetActive(false);
 
             Sprite[] fruitSprites = Resources.LoadAll<Sprite>("Sprites/level_icons");
             _fruitMap = new Dictionary<TileState, Sprite>
@@ -141,6 +144,11 @@ namespace LongRoadGames.PacMan
             _txtHighScore.text = highScore.ToString();
         }
 
+        public void ShowReady(bool show)
+        {
+            _txtReady.gameObject.SetActive(show);
+        }
+
         private void _initialize_dev_controls()
         {
             _txtDevCurrentLevel = transform.Find("Canvas/pnlDev/pnlCurrentLevel/Text").gameObject.GetComponent<Text>();
@@ -188,6 +196,7 @@ namespace LongRoadGames.PacMan
             else
                 _txtDevCurrentPowerPhase.text = $"CURRENT PHASE: -";
         }
+
 #endif
     }
 }
