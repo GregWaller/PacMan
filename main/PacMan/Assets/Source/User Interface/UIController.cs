@@ -168,7 +168,7 @@ namespace LongRoadGames.PacMan
         public void SetLives(int lives)
         {
             int iconIDX = 0;
-            for(; iconIDX < lives; iconIDX++)
+            for(; iconIDX < lives && iconIDX < _LIFE_ICON_COUNT; iconIDX++)
                 _lifeIcons[iconIDX].gameObject.SetActive(true);
 
             for (; iconIDX < _LIFE_ICON_COUNT; iconIDX++)

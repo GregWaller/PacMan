@@ -66,6 +66,8 @@ namespace LongRoadGames.PacMan
         // ----- Scoring
         public int DotsRemaining { get; private set; } = 0;
         private const string _HIGHSCORE_KEY = "HighScore";
+        private const int _BONUS_LIFE = 10000;
+        private int _nextBonusLife = 0;
         private int _maxDots = 0;
         private int _score = 0;
         private int _highScore = 0;
@@ -178,6 +180,7 @@ namespace LongRoadGames.PacMan
         public void ResetGame()
         {
             _score = 0;
+            _nextBonusLife = _BONUS_LIFE;
             GUI.SetScore(0);
 
             _highScore = PlayerPrefs.GetInt(_HIGHSCORE_KEY, 0);
@@ -383,12 +386,12 @@ namespace LongRoadGames.PacMan
                 GUI.SetHighScore(_highScore);
             }
 
-            if (_score >= 10000)
+            if (_score >= _nextBonusLife)
             {
+                _nextBonusLife += _BONUS_LIFE;
                 PacMan.BonusLife();
                 AudioController.Play(AudioClipID.Extend);
             }
-                
         }
 
         public bool ConsumeDot(GameTile tile)
