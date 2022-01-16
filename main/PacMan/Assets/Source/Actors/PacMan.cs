@@ -88,16 +88,14 @@ namespace LongRoadGames.PacMan
             base.Initialize(gameboard);
 
             // TODO: tweak PacMan's speed to make it feel a little smoother
-            _speed = 5.0f;
+            _speed = 7.0f;
             _playerInput = GetComponent<PlayerInput>();
         }
 
         public override void Begin()
         {
             _face(Direction.Right);
-
             _board.GUI.SetLives(ExtraLives);
-
             base.Begin();
         }
 
@@ -116,8 +114,10 @@ namespace LongRoadGames.PacMan
 
         public void Capture()
         {
-            _board.Pause(2.0f, _death_animation);
+            float sfxDuration = AudioController.Instance.Duration(AudioClipID.Death);
+            _board.Pause(sfxDuration, _death_animation);
             _animator.SetTrigger("Die");
+            AudioController.Instance.Play(AudioClipID.Death);
         }
 
         private void _death_animation()

@@ -30,6 +30,9 @@ namespace LongRoadGames.PacMan
         public Tile EmptyTile { get; private set; }
         public UIController GUI { get; private set; }
 
+        // ----- Audio
+        public AudioController AudioController => AudioController.Instance;
+
         // ----- Actors
         public PacMan PacMan;
         public Blinky Blinky;
@@ -84,6 +87,10 @@ namespace LongRoadGames.PacMan
 
             GUI = gameObject.AddComponent<UIController>();
             GUI.Initialize(this);
+
+            AudioSource loopSource = transform.Find("Audio/Loop").gameObject.GetComponent<AudioSource>();
+            AudioSource sfxSource = transform.Find("Audio/SFX").gameObject.GetComponent<AudioSource>();
+            AudioController.Initialize(sfxSource, loopSource);
 
             DotTile = Instantiate(Resources.Load<Tile>("Sprites/Dot"));
             PDotTile = Instantiate(Resources.Load<Tile>("Sprites/PDot"));
@@ -154,11 +161,10 @@ namespace LongRoadGames.PacMan
             _reset_actors();
             _reset_level_phase();
 
-            LevelInProgress = false;
-            _readyCountdown = 3.0f;
-            GUI.ShowReady(true);
+            if (FruitSpawner.Spawned)
+                FruitSpawner.Despawn();
 
-            GUI.SetLives(PacMan.ExtraLives);
+            _prep_level();
         }
 
         public void ResetGame()
@@ -270,6 +276,15 @@ namespace LongRoadGames.PacMan
             Clyde.ResetPosition();
         }
 
+        private void _prep_level()
+        {
+            LevelInProgress = false;
+            _readyCountdown = AudioController.Duration(AudioClipID.GameStart);
+            AudioController.Play(AudioClipID.GameStart);
+            GUI.ShowReady(true);
+            GUI.SetLives(PacMan.ExtraLives);
+        }
+
         #endregion
 
         #region Tile Access and Mutation
@@ -361,7 +376,11 @@ namespace LongRoadGames.PacMan
             }
 
             if (_score >= 10000)
+            {
                 PacMan.BonusLife();
+                AudioController.Play(AudioClipID.Extend);
+            }
+                
         }
 
         public bool ConsumeDot(GameTile tile)
@@ -376,6 +395,8 @@ namespace LongRoadGames.PacMan
             {
                 DotsRemaining--;
 
+                AudioController.PlayChomp();
+
                 if (_fruitSpawn == 0 && DotsRemaining == _maxDots - 70 ||
                     _fruitSpawn == 1 && DotsRemaining == _maxDots - 170)
                     _spawn_fruit();
@@ -389,9 +410,7 @@ namespace LongRoadGames.PacMan
                 GUI.SetLevel(CurrentLevel);
                 GUI.DebugLevel(CurrentLevel);
 
-                LevelInProgress = false;
-                _readyCountdown = 5.0f;
-                GUI.ShowReady(true);
+                _prep_level();
 
                 return false;
             }
@@ -408,6 +427,7 @@ namespace LongRoadGames.PacMan
             int points = Ghost.POINT_VALUE * _ghostsEaten;
             AddPoints(points);
             GUI.BonusPoints.Display(points, ghost.CurrentTile.Position);
+            AudioController.Play(AudioClipID.EatGhost);
 
             Pause();
         }
@@ -427,6 +447,7 @@ namespace LongRoadGames.PacMan
             PowerPhase = true;
             _powerPhaseDuration = _phase_duration(++_currentPowerPhase, Strategy.Scatter);
             _ghostsEaten = 0;
+            AudioController.StartLoop(AudioClipID.PowerPellet);
 
             Pause();
 
@@ -441,6 +462,7 @@ namespace LongRoadGames.PacMan
             PowerPhase = false;
             _powerPhaseDuration = 0.0f;
             _ghostsEaten = 0;
+            AudioController.StopLoop();
 
             Blinky.Resume();
             Pinky.Resume();
