@@ -47,7 +47,7 @@ namespace LongRoadGames.PacMan
 
         public override void Update()
         {
-            if (_board.LevelInProgress)
+            if (_board.LevelInProgress && !_board.Paused)
             {
                 if (_active)
                 {

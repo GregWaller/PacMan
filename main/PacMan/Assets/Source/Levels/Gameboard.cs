@@ -66,6 +66,13 @@ namespace LongRoadGames.PacMan
         private float _readyCountdown = 5.0f;
         private int _fruitSpawn = 0;
 
+        // ----- Pausing
+        public delegate void PauseComplete();
+        public bool Paused { get; private set; }
+        private const float _DEFAULT_SCREEN_PAUSE = 0.75f; 
+        private float _pauseDuration = 0.0f;
+        private PauseComplete _pauseCompleteCB;
+
         public void Start()
         {
             Application.targetFrameRate = _TARGET_FPS;
@@ -94,29 +101,41 @@ namespace LongRoadGames.PacMan
             GUI.DebugPowerPhase(PowerPhase, _currentPowerPhase);
             GUI.DebugDotCounter(DotsRemaining, _maxDots);
 #endif
-
-            if (!LevelInProgress)
+            if (Paused)
             {
-                _readyCountdown -= Time.deltaTime;
-                if (_readyCountdown <= 0.0f)
+                _pauseDuration -= Time.deltaTime;
+                if (_pauseDuration <= 0.0f)
                 {
-                    LevelInProgress = true;
-                    _readyCountdown = 0.0f;
-
-                    PacMan.Begin();
-                    Blinky.Begin();
-                    GUI.ShowReady(false);
+                    _pauseDuration = 0.0f;
+                    _pauseCompleteCB?.Invoke();
+                    Paused = false;
                 }
             }
             else
             {
-                _update_level_phase();
-
-                if (PowerPhase)
+                if (!LevelInProgress)
                 {
-                    _powerPhaseDuration -= Time.deltaTime;
-                    if (_powerPhaseDuration <= 0.0f)
-                        _end_power_phase();
+                    _readyCountdown -= Time.deltaTime;
+                    if (_readyCountdown <= 0.0f)
+                    {
+                        LevelInProgress = true;
+                        _readyCountdown = 0.0f;
+
+                        PacMan.Begin();
+                        Blinky.Begin();
+                        GUI.ShowReady(false);
+                    }
+                }
+                else
+                {
+                    _update_level_phase();
+
+                    if (PowerPhase)
+                    {
+                        _powerPhaseDuration -= Time.deltaTime;
+                        if (_powerPhaseDuration <= 0.0f)
+                            _end_power_phase();
+                    }
                 }
             }
         }
@@ -389,6 +408,8 @@ namespace LongRoadGames.PacMan
             int points = Ghost.POINT_VALUE * _ghostsEaten;
             AddPoints(points);
             GUI.BonusPoints.Display(points, ghost.CurrentTile.Position);
+
+            Pause();
         }
 
         private void _spawn_fruit()
@@ -406,6 +427,8 @@ namespace LongRoadGames.PacMan
             PowerPhase = true;
             _powerPhaseDuration = _phase_duration(++_currentPowerPhase, Strategy.Scatter);
             _ghostsEaten = 0;
+
+            Pause();
 
             Blinky.Frighten();
             Pinky.Frighten();
@@ -490,6 +513,17 @@ namespace LongRoadGames.PacMan
                 else
                     return 0.01f;
             }
+        }
+
+        #endregion
+
+        #region Animation Pauses (Dramatic Effect)
+
+        public void Pause(float pauseDuration = _DEFAULT_SCREEN_PAUSE, PauseComplete pauseCompleteCallback = null)
+        {
+            _pauseCompleteCB = pauseCompleteCallback;
+            _pauseDuration = pauseDuration;
+            Paused = true;
         }
 
         #endregion

@@ -16,7 +16,7 @@ namespace LongRoadGames.PacMan
 
         public void Update()
         {
-            if (_spawned)
+            if (_spawned && !_board.Paused)
             {
                 _duration -= Time.deltaTime;
                 if (_duration <= 0.0f)

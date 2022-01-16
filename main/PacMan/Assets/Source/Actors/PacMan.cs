@@ -20,7 +20,7 @@ namespace LongRoadGames.PacMan
 
         public override void Update()
         {
-            if (_board.LevelInProgress)
+            if (_board.LevelInProgress && !_board.Paused)
             {
                 Direction input = Facing;
                 if (_playerInput.actions["Up"].IsPressed())
@@ -94,7 +94,7 @@ namespace LongRoadGames.PacMan
 
         public override void Begin()
         {
-            Facing = Direction.Right;
+            _face(Direction.Right);
 
             _board.GUI.SetLives(ExtraLives);
 
@@ -116,8 +116,13 @@ namespace LongRoadGames.PacMan
 
         public void Capture()
         {
-            ExtraLives--;
+            _board.Pause(2.0f, _death_animation);
+            _animator.SetTrigger("Die");
+        }
 
+        private void _death_animation()
+        {
+            ExtraLives--;
             if (ExtraLives >= 0)
                 _board.ResetLevel(false);
             else

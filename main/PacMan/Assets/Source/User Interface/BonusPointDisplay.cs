@@ -18,7 +18,7 @@ namespace LongRoadGames.PacMan
 
         public void Update()
         {
-            if (Active)
+            if (Active && !_board.Paused)
             {
                 _duration -= Time.deltaTime;
                 if (_duration <= 0.0f)
@@ -32,6 +32,7 @@ namespace LongRoadGames.PacMan
         public void Initialize(UIController parent, Gameboard gameboard)
         {
             _parent = parent;
+            _board = gameboard;
             _rect = gameObject.GetComponent<RectTransform>();
             _txtBonusPoints = transform.Find("Text").gameObject.GetComponent<Text>();
             SetActive(false);
