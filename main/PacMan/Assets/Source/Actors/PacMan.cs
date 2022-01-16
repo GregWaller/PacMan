@@ -70,7 +70,7 @@ namespace LongRoadGames.PacMan
 
                 if (currentTile.CurrentState >= TileState.Dot)
                 {
-                    if (!_board.Consume(currentTile))
+                    if (!_board.ConsumeDot(currentTile))
                         return;
                 }
 

@@ -12,6 +12,7 @@ namespace LongRoadGames.PacMan
         private float _duration = 0.0f;
         private bool _spawned = false;
         private TileState _iconValue;
+        private GameTile _tile;
 
         public void Update()
         {
@@ -26,6 +27,7 @@ namespace LongRoadGames.PacMan
                 if (distance <= PacMan.COLLISION_THRESHOLD)
                 {
                     _board.AddPoints(Value);
+                    _board.GUI.BonusPoints.Display(Value, _tile.Position);
                     _despawn();
                 }
             }
@@ -34,6 +36,7 @@ namespace LongRoadGames.PacMan
         public void Initialize(Gameboard gameboard)
         {
             _board = gameboard;
+            _tile = _board.GetTile(transform.position);
             _spriteRenderer = GetComponent<SpriteRenderer>();
             gameObject.SetActive(false);
         }

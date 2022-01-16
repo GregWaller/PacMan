@@ -8,6 +8,8 @@ namespace LongRoadGames.PacMan
 {
     public class UIController : MonoBehaviour
     {
+        private Gameboard _board;
+
         // ----- Developer Controls
         private Text _txtDevCurrentLevel;
         private Text _txtDevCurrentTile;
@@ -52,8 +54,13 @@ namespace LongRoadGames.PacMan
         private const int _LIFE_ICON_COUNT = 5;
         private List<Image> _lifeIcons;
 
-        public void Initialize()
+        // ----- Bonus Point Display
+        public BonusPointDisplay BonusPoints { get; private set; }
+
+        public void Initialize(Gameboard gameboard)
         {
+            _board = gameboard;
+
             _initialize_dev_controls();
 
             // ----- Gameplay Readouts
@@ -82,7 +89,11 @@ namespace LongRoadGames.PacMan
             // ----- Life Indicators
             _lifeIcons = new List<Image>();
             for(int i = 0; i < _LIFE_ICON_COUNT; i++)
-                _lifeIcons.Add(transform.Find("Canvas/pnlLivesIndicator/Icon_" + i).gameObject.GetComponent<Image>()); 
+                _lifeIcons.Add(transform.Find("Canvas/pnlLivesIndicator/Icon_" + i).gameObject.GetComponent<Image>());
+
+            // ----- Bonus Point Display
+            BonusPoints = transform.Find("Canvas/pnlBonusPoints").gameObject.AddComponent<BonusPointDisplay>();
+            BonusPoints.Initialize(this, _board);
         }
 
         public void SetLevel(int level)

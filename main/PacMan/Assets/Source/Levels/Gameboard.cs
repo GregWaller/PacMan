@@ -76,7 +76,7 @@ namespace LongRoadGames.PacMan
 #endif
 
             GUI = gameObject.AddComponent<UIController>();
-            GUI.Initialize();
+            GUI.Initialize(this);
 
             DotTile = Instantiate(Resources.Load<Tile>("Sprites/Dot"));
             PDotTile = Instantiate(Resources.Load<Tile>("Sprites/PDot"));
@@ -345,7 +345,7 @@ namespace LongRoadGames.PacMan
                 PacMan.BonusLife();
         }
 
-        public bool Consume(GameTile tile)
+        public bool ConsumeDot(GameTile tile)
         {
             bool isPowerDot = tile.CurrentState == TileState.PDot;
             bool isDot = tile.CurrentState == TileState.Dot;
@@ -386,7 +386,9 @@ namespace LongRoadGames.PacMan
         public void ConsumeGhost(Ghost ghost)
         {
             _ghostsEaten++;
-            AddPoints(Ghost.POINT_VALUE * _ghostsEaten);
+            int points = Ghost.POINT_VALUE * _ghostsEaten;
+            AddPoints(points);
+            GUI.BonusPoints.Display(points, ghost.CurrentTile.Position);
         }
 
         private void _spawn_fruit()
