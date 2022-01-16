@@ -116,6 +116,8 @@ namespace LongRoadGames.PacMan
         {
             float sfxDuration = AudioController.Instance.Duration(AudioClipID.Death);
             _board.Pause(sfxDuration, _death_animation);
+            if (ExtraLives - 1 < 0)
+                _board.GUI.ShowGameOver(true);
             _animator.SetTrigger("Die");
             AudioController.Instance.Play(AudioClipID.Death);
         }

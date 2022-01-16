@@ -281,6 +281,7 @@ namespace LongRoadGames.PacMan
             LevelInProgress = false;
             _readyCountdown = AudioController.Duration(AudioClipID.GameStart);
             AudioController.Play(AudioClipID.GameStart);
+            GUI.ShowGameOver(false);
             GUI.ShowReady(true);
             GUI.SetLives(PacMan.ExtraLives);
         }

@@ -22,6 +22,7 @@ namespace LongRoadGames.PacMan
         private Text _txtCurrentScore;
         private Text _txtHighScore;
         private Text _txtReady;
+        private Text _txtGameOver;
 
         // ----- Level Indicators
         private const int _LEVEL_ICON_COUNT = 7;
@@ -68,6 +69,8 @@ namespace LongRoadGames.PacMan
             _txtHighScore = transform.Find("Canvas/pnlScore/pnlHighScore/Text").gameObject.GetComponent<Text>();
             _txtReady = transform.Find("Canvas/pnlReady/Text").gameObject.GetComponent<Text>();
             _txtReady.gameObject.SetActive(false);
+            _txtGameOver = transform.Find("Canvas/pnlGameOver/Text").gameObject.GetComponent<Text>();
+            _txtGameOver.gameObject.SetActive(false);
 
             // ----- Level Indicators
             Sprite[] fruitSprites = Resources.LoadAll<Sprite>("Sprites/level_icons");
@@ -185,6 +188,11 @@ namespace LongRoadGames.PacMan
         public void ShowReady(bool show)
         {
             _txtReady.gameObject.SetActive(show);
+        }
+
+        public void ShowGameOver(bool show)
+        {
+            _txtGameOver.gameObject.SetActive(show);
         }
 
         private void _initialize_dev_controls()
