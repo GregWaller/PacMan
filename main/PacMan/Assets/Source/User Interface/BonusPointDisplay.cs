@@ -45,11 +45,10 @@ namespace LongRoadGames.PacMan
 
             // scale the screenPoint based on the current resolution of the player
             Vector2 anchor = new Vector2(screenPoint.x, screenPoint.y);
-
             float rw = (anchor.x * Screen.width) / 1920.0f;
             float rh = (anchor.y * Screen.height) / 1080.0f;
-
             Vector3 targetPos = new Vector3(rw, rh, 0.0f);
+
             _rect.position = targetPos;
 
             _duration = _DEFAULT_DISPLAY_DURATION;

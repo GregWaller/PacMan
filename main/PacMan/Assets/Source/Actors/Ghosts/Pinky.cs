@@ -14,22 +14,22 @@ namespace LongRoadGames.PacMan
         {
             Vector3 pacManPosition = _board.PacMan.CurrentTile.Position;
             Direction pacManFacing = _board.PacMan.Facing;
-            Vector3 newPos;
+            Vector3 targetPosition;
 
             if (pacManFacing == Direction.Up)
             {
                 // simulate the integer overflow from the original 8-bit version
                 // see: https://youtu.be/ataGotQ7ir8?t=451 for more information
 
-                newPos = pacManPosition + (_directionMap(Direction.Up) * 4);
-                newPos += (_directionMap(Direction.Left) * 4);
+                targetPosition = pacManPosition + (_directionMap(Direction.Up) * 4);
+                targetPosition += (_directionMap(Direction.Left) * 4);
             }
             else
             {
-                newPos = pacManPosition + (_directionMap(pacManFacing) * 4);
+                targetPosition = pacManPosition + (_directionMap(pacManFacing) * 4);
             }
 
-            return _board.Tilemap.WorldToCell(newPos);
+            return _board.Tilemap.WorldToCell(targetPosition);
         }
     }
 }

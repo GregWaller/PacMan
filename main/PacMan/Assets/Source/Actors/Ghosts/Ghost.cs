@@ -80,7 +80,7 @@ namespace LongRoadGames.PacMan
         public RuntimeAnimatorController EatenAnimatorController;
         protected RuntimeAnimatorController _primaryAC;
 
-        public override void Update()
+        public void Update()
         {
             if (_board.LevelInProgress && !_board.Paused)
             {
@@ -251,6 +251,7 @@ namespace LongRoadGames.PacMan
             if (_currentStrategy == Strategy.Frightened || _currentStrategy == Strategy.Eaten)
                 return;
 
+            _face(Facing.Flip());
             _currentStrategy = Strategy.Frightened;
             _animator.runtimeAnimatorController = FrightenedAnimatorController;
         }
@@ -259,6 +260,7 @@ namespace LongRoadGames.PacMan
             if (_currentStrategy == Strategy.Eaten)
                 return;
 
+            _face(Facing.Flip());
             _currentStrategy = _board.LevelStrategy;
             _animator.runtimeAnimatorController = _primaryAC;
         }
@@ -266,7 +268,14 @@ namespace LongRoadGames.PacMan
         protected void _execute_strategy()
         {
             Strategy levelStrategy = _select_strategy();
-            Vector3Int targetCell = _select_target(levelStrategy);
+
+            if (_currentStrategy != Strategy.Eaten && _currentStrategy != Strategy.Frightened && levelStrategy != _currentStrategy)
+            {
+                _face(Facing.Flip());
+                _currentStrategy = levelStrategy;
+            }
+
+            Vector3Int targetCell = _strategyMap[_currentStrategy]();
             _select_path(targetCell);
             _pathSelected = true;
         }
@@ -276,16 +285,6 @@ namespace LongRoadGames.PacMan
                 return _currentStrategy;
 
             return _board.LevelStrategy;
-        }
-        protected Vector3Int _select_target(Strategy levelStrategy)
-        {
-            if (levelStrategy != _currentStrategy)
-            {
-                _face(Facing.Flip());
-                _currentStrategy = levelStrategy;
-            }
-
-            return _strategyMap[_currentStrategy]();
         }
         protected void _select_path(Vector3Int targetCell)
         {
@@ -325,6 +324,7 @@ namespace LongRoadGames.PacMan
             if (!_board.DirectionBlocked(currentPosition, right))
                 viableOptions.Add(right, _board.GetTileNeighbour(currentPosition, right));
 
+            // special restrictions if the ghost is currently in a facelock zone.
             if (_facelockTiles.Contains(currentPosition) && viableOptions.ContainsKey(Direction.Up))
                 viableOptions.Remove(Direction.Up);
 

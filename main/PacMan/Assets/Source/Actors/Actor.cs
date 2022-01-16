@@ -5,19 +5,16 @@ namespace LongRoadGames.PacMan
 {
     public abstract class Actor : MonoBehaviour
     {
-        protected abstract Vector3 _INITIAL_POSITION { get; }
-        protected abstract Direction _INITIAL_FACING { get; }
-
         protected Animator _animator;
         protected Gameboard _board;
 
+        protected abstract Vector3 _INITIAL_POSITION { get; }
+        protected abstract Direction _INITIAL_FACING { get; }
         public GameTile CurrentTile => _board.GetTile(transform.position);
         public Direction Facing { get; protected set; } = Direction.Right;
         protected GameTile _previousTile = null;
         protected float _speed = 0.0f;
         protected Vector3 _direction = Vector3.zero;
-
-        public virtual void Update() { }
 
         #region Initialization and Resets
 

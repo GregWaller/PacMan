@@ -20,7 +20,7 @@ namespace LongRoadGames.PacMan
         public int ExtraLives { get; private set; } = _DEFAULT_LIFE_COUNT;
         private const int _DEFAULT_LIFE_COUNT = 2;
 
-        public override void Update()
+        public void Update()
         {
             if (_board.LevelInProgress && !_board.Paused)
             {

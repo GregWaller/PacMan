@@ -14,26 +14,26 @@ namespace LongRoadGames.PacMan
         {
             Vector3 pacManPosition = _board.PacMan.CurrentTile.Position;
             Direction pacManFacing = _board.PacMan.Facing;
-            Vector3 newPos;
+            Vector3 targetPosition;
 
             if (pacManFacing == Direction.Up)
             {
                 // simulate the integer overflow from the original 8-bit version
                 // see: https://youtu.be/ataGotQ7ir8?t=451 for more information
 
-                newPos = pacManPosition + (_directionMap(Direction.Up) * 2);
-                newPos += (_directionMap(Direction.Left) * 2);
+                targetPosition = pacManPosition + (_directionMap(Direction.Up) * 2);
+                targetPosition += (_directionMap(Direction.Left) * 2);
             }
             else
             {
-                newPos = pacManPosition + (_directionMap(pacManFacing) * 2);
+                targetPosition = pacManPosition + (_directionMap(pacManFacing) * 2);
             }
 
             Vector3 blinkyPosition = _board.Blinky.CurrentTile.Position;
-            Vector3 targetToBlinky = blinkyPosition - newPos;
-            newPos = Quaternion.AngleAxis(180.0f, new Vector3(0.0f, 0.0f, 1.0f)) * targetToBlinky;
+            Vector3 targetToBlinky = blinkyPosition - targetPosition;
+            targetPosition = Quaternion.AngleAxis(180.0f, new Vector3(0.0f, 0.0f, 1.0f)) * targetToBlinky;
             
-            return _board.Tilemap.WorldToCell(newPos);
+            return _board.Tilemap.WorldToCell(targetPosition);
         }
     }
 }

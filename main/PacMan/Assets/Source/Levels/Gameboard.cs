@@ -117,8 +117,7 @@ namespace LongRoadGames.PacMan
             GUI.DebugPowerPhase(PowerPhase, _currentPowerPhase);
             GUI.DebugDotCounter(DotsRemaining, _maxDots);
 #endif
-            // flashing powerdots
-            // every second we'll toggle the power dots and reset the flash timer
+
             _powerDotFlashTimer -= Time.deltaTime;
             if (_powerDotFlashTimer < 0.0f)
             {
@@ -448,7 +447,7 @@ namespace LongRoadGames.PacMan
                 return false;
             }
 
-            if (isPowerDot)_begin_power_phase();
+            if (isPowerDot) _begin_power_phase();
 
             return true;
         }

@@ -33,13 +33,13 @@ namespace LongRoadGames.PacMan
             int level = _board.CurrentLevel;
             int dotsRemaining = _board.DotsRemaining;
 
-            if ( (level == 0 && dotsRemaining <= 20) ||
-                 (level == 1 && dotsRemaining <= 30) ||
-                 (level < 5 && dotsRemaining <= 40) ||
-                 (level < 8 && dotsRemaining <= 50) ||
-                 (level < 11 && dotsRemaining <= 60) ||
-                 (level < 14 && dotsRemaining <= 80) ||
-                 (level < 18 && dotsRemaining <= 100) ||
+            if ( (level == 0  && dotsRemaining <= 20) ||
+                 (level == 1  && dotsRemaining <= 30) ||
+                 (level  < 5  && dotsRemaining <= 40) ||
+                 (level  < 8  && dotsRemaining <= 50) ||
+                 (level  < 11 && dotsRemaining <= 60) ||
+                 (level  < 14 && dotsRemaining <= 80) ||
+                 (level  < 18 && dotsRemaining <= 100) ||
                  (level >= 18 && dotsRemaining <= 120))
                 return Strategy.Chase;
             else

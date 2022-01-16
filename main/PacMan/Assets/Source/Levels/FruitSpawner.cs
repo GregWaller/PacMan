@@ -4,14 +4,14 @@ namespace LongRoadGames.PacMan
 {
     public class FruitSpawner : MonoBehaviour
     {
-        public int Value => (int)_iconValue;
+        public int Value => (int)_levelIcon;
         public bool Spawned { get; private set; }
 
         private Gameboard _board;
         private SpriteRenderer _spriteRenderer;
         private const float _DEFAULT_DURATION = 9.0f;
         private float _duration = 0.0f;
-        private TileState _iconValue;
+        private TileState _levelIcon;
         private GameTile _tile;
 
         public void Update()
@@ -22,7 +22,6 @@ namespace LongRoadGames.PacMan
                 if (_duration <= 0.0f)
                     Despawn();
 
-                // determine collisions with pacman
                 float distance = Vector3.Distance(transform.position, _board.PacMan.transform.position);
                 if (distance <= PacMan.COLLISION_THRESHOLD)
                 {
@@ -44,8 +43,8 @@ namespace LongRoadGames.PacMan
 
         public void Spawn(int level)
         {
-            _iconValue = _board.GUI.LevelState(level);
-            _spriteRenderer.sprite = _board.GUI.GetLevelSprite(_iconValue);
+            _levelIcon = _board.GUI.LevelState(level);
+            _spriteRenderer.sprite = _board.GUI.GetLevelSprite(_levelIcon);
 
             gameObject.SetActive(true);
 

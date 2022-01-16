@@ -12,11 +12,11 @@ namespace LongRoadGames.PacMan
 
         protected override Vector3Int _chase()
         {
-            Vector3Int pacManCell = _board.PacMan.CurrentTile.CellPosition;
-            float cellDistanceToPacMan = Vector3Int.Distance(CurrentTile.CellPosition, pacManCell);
+            Vector3Int targetPosition = _board.PacMan.CurrentTile.CellPosition;
+            float cellDistanceToPacMan = Vector3Int.Distance(CurrentTile.CellPosition, targetPosition);
 
             if (cellDistanceToPacMan > 8)
-                return pacManCell;
+                return targetPosition;
             else
                 return _SCATTER_TARGET;
         }

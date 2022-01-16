@@ -7,14 +7,15 @@ namespace LongRoadGames.PacMan
     {
         private readonly static Random _rng = new Random();
 
+        #region Direction Enumeration Manipulation
+
         public static Direction Left(this Direction direction)
         {
             if (direction - 1 == Direction.None)
-                return Direction.Left;  // cycle back to left from up
+                return Direction.Left;  // cycle to left from up
 
             return direction - 1;
         }
-
         public static Direction Right(this Direction direction)
         {
             if (direction + 1 > Direction.Left)
@@ -22,7 +23,6 @@ namespace LongRoadGames.PacMan
 
             return direction + 1;
         }
-
         public static Direction Flip(this Direction direction)
         {
             if (direction + 2 > Direction.Left)
@@ -31,9 +31,15 @@ namespace LongRoadGames.PacMan
             return direction + 2;
         }
 
+        #endregion
+
+        #region Generic Collections
+
         public static T Random<T>(this List<T> list)
         {
             return list[_rng.Next(list.Count)];
         }
+
+        #endregion
     }
 }
