@@ -45,6 +45,10 @@ namespace LongRoadGames.PacMan
         private const int _BOARD_WIDTH = 28;
         private const int _BOARD_HEIGHT = 31;
         private Dictionary<Vector3Int, GameTile> _playArea;
+        private const float _POWER_DOT_FLASH_FREQUENCY = 0.25f;
+        private List<Vector3Int> _powerDotCells;
+        private float _powerDotFlashTimer = 1.0f;
+        private bool _powerDotsOn = true;
 
         // ----- Power Phases
         public bool PowerPhase { get; private set; } = false;
@@ -113,6 +117,17 @@ namespace LongRoadGames.PacMan
             GUI.DebugPowerPhase(PowerPhase, _currentPowerPhase);
             GUI.DebugDotCounter(DotsRemaining, _maxDots);
 #endif
+            // flashing powerdots
+            // every second we'll toggle the power dots and reset the flash timer
+            _powerDotFlashTimer -= Time.deltaTime;
+            if (_powerDotFlashTimer < 0.0f)
+            {
+                _powerDotsOn = !_powerDotsOn;
+                foreach(Vector3Int cell in _powerDotCells)
+                    Tilemap.SetColor(cell, _powerDotsOn ? Color.white : Color.clear);
+                _powerDotFlashTimer = _POWER_DOT_FLASH_FREQUENCY;
+            }
+
             if (Paused)
             {
                 _pauseDuration -= Time.deltaTime;
@@ -163,6 +178,9 @@ namespace LongRoadGames.PacMan
                 _reset_dots();
                 _currentPowerPhase = 0;
                 _fruitSpawn = 0;
+
+                _powerDotsOn = true;
+                _powerDotFlashTimer = _POWER_DOT_FLASH_FREQUENCY;
             }
 
             _reset_actors();
@@ -196,8 +214,7 @@ namespace LongRoadGames.PacMan
         private void _initialize_board()
         {
             _playArea = new Dictionary<Vector3Int, GameTile>();
-
-            for(int y = 0; y < _BOARD_HEIGHT; y++)
+            for (int y = 0; y < _BOARD_HEIGHT; y++)
             {
                 for(int x = 0; x < _BOARD_WIDTH; x++)
                 {
@@ -222,16 +239,12 @@ namespace LongRoadGames.PacMan
             }
 
             FruitSpawner.Initialize(this);
+            _powerDotCells = new List<Vector3Int>();
 
             LeftWarp = _playArea[new Vector3Int(0, 16, 0)];
             LeftWarp.OverwriteState(TileState.LeftWarp);
             RightWarp = _playArea[new Vector3Int(27, 16, 0)];
             RightWarp.OverwriteState(TileState.RightWarp);
-
-            // warp tunnels
-            // provides a slowing effect for ghosts
-            // left warp tunnel is (1,16,0) -> (5,16,0)
-            // right warp tunnel is (22,16,0) -> (26,16,0)
         }
 
         private void _initialize_actors()
@@ -253,11 +266,20 @@ namespace LongRoadGames.PacMan
             tile.Reset();
             DotsRemaining++;
 #else
+
+            _powerDotCells.Clear();
+
             foreach(GameTile gameTile in _playArea.Values.Where(t => t.CurrentState != TileState.Wall))
             {
                 gameTile.Reset();
                 if (gameTile.CurrentState == TileState.Dot || gameTile.CurrentState == TileState.PDot)
                     DotsRemaining++;
+
+                if (gameTile.CurrentState == TileState.PDot)
+                {
+                    _powerDotCells.Add(gameTile.CellPosition);
+                    Tilemap.SetTileFlags(gameTile.CellPosition, TileFlags.None);
+                }
             }
 
             _maxDots = DotsRemaining;

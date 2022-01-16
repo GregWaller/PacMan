@@ -316,7 +316,7 @@ Transform:
   - {fileID: 1940579864}
   - {fileID: 479014464}
   m_Father: {fileID: 1711143868}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &297523293
 GameObject:
@@ -1547,7 +1547,7 @@ RectTransform:
   - {fileID: 424594257}
   - {fileID: 1700832991}
   m_Father: {fileID: 1711143868}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1924,6 +1924,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1711143868}
     m_Modifications:
+    - target: {fileID: 579846800707077506, guid: 92b51d41f88d33b4fa8f2aac0dae7023, type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 579846800707077506, guid: 92b51d41f88d33b4fa8f2aac0dae7023, type: 3}
       propertyPath: m_TileAnchor.x
       value: 0.5
@@ -4706,7 +4710,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4494689026441503022, guid: 92b51d41f88d33b4fa8f2aac0dae7023, type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4494689026441503022, guid: 92b51d41f88d33b4fa8f2aac0dae7023, type: 3}
       propertyPath: m_LocalScale.x
@@ -6635,6 +6639,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 1980392624}
   - {fileID: 53383951}
   - {fileID: 745301141}
   - {fileID: 189737040}
@@ -7739,12 +7744,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1980392622}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 14, y: 13.5, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_Father: {fileID: 1711143868}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1980392625
 MonoBehaviour:
