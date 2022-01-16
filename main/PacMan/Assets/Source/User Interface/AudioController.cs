@@ -5,26 +5,16 @@ namespace LongRoadGames.PacMan
 {
     public enum AudioClipID
     {
-        Credit,
+        GameStart,
 
-        GameStart,      // -
+        Death,
+        EatFruit,
+        EatGhost,
+        Munch_1,
+        Munch_2,
 
-        Death,          // -
-        EatFruit,       // -
-        EatGhost,       // -
-        Munch_1,        // -
-        Munch_2,        // -
-
-        Extend,         // bonus life
-        PowerPellet,    // -
-
-        Retreating,
-        Siren_1,
-        Siren_2,
-        Siren_3,
-        Siren_4,
-        Siren_5,
-        
+        Extend,
+        PowerPellet,
     }
 
     public class AudioController : ScriptableObject
@@ -55,7 +45,6 @@ namespace LongRoadGames.PacMan
             _loops = loopSource;
             _audioClips = new Dictionary<AudioClipID, AudioClip>()
             {
-                { AudioClipID.Credit, Resources.Load<AudioClip>("Sounds/credit") },
                 { AudioClipID.GameStart, Resources.Load<AudioClip>("Sounds/game_start") },
                 { AudioClipID.Death, Resources.Load<AudioClip>("Sounds/death") },
                 { AudioClipID.EatFruit, Resources.Load<AudioClip>("Sounds/eat_fruit") },
@@ -64,12 +53,6 @@ namespace LongRoadGames.PacMan
                 { AudioClipID.Munch_2, Resources.Load<AudioClip>("Sounds/munch_2") },
                 { AudioClipID.Extend, Resources.Load<AudioClip>("Sounds/extend") },
                 { AudioClipID.PowerPellet, Resources.Load<AudioClip>("Sounds/power_pellet") },
-                { AudioClipID.Retreating, Resources.Load<AudioClip>("Sounds/retreating") },
-                { AudioClipID.Siren_1, Resources.Load<AudioClip>("Sounds/siren_1") },
-                { AudioClipID.Siren_2, Resources.Load<AudioClip>("Sounds/siren_2") },
-                { AudioClipID.Siren_3, Resources.Load<AudioClip>("Sounds/siren_3") },
-                { AudioClipID.Siren_4, Resources.Load<AudioClip>("Sounds/siren_4") },
-                { AudioClipID.Siren_5, Resources.Load<AudioClip>("Sounds/siren_5") },
             };
 
             _chompIDX = 0;
@@ -96,7 +79,6 @@ namespace LongRoadGames.PacMan
             _loops.clip = _audioClips[clipID];
             _loops.Play();
         }
-
         public void StopLoop()
         {
             _loops.Stop();

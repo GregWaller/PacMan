@@ -29,10 +29,10 @@ namespace LongRoadGames.PacMan
 
         public virtual void ResetPosition()
         {
-            Facing = _INITIAL_FACING;
             _direction = Vector3.zero;
-            Warp(_INITIAL_POSITION, _INITIAL_FACING);
             _previousTile = null;
+            Facing = _INITIAL_FACING;
+            Warp(_INITIAL_POSITION, Facing);
         }
 
         public virtual void Begin() 

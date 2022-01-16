@@ -3,6 +3,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+// reference: https://www.gamasutra.com/view/feature/3938/the_pacman_dossier.php
+
 namespace LongRoadGames.PacMan
 {
     [RequireComponent(typeof(PlayerInput))]
@@ -10,9 +12,9 @@ namespace LongRoadGames.PacMan
     {
         public const float COLLISION_THRESHOLD = 0.8f;  // actor "radius" is 1.  a value slightly less than that gives us an 80% overlap requirement for a "collision"
 
+        protected const float _PACMAN_SPEED = 7.0f;
         protected override Vector3 _INITIAL_POSITION => new Vector3(14.0f, 7.5f, 0.0f);
         protected override Direction _INITIAL_FACING => Direction.Right;
-
         private PlayerInput _playerInput;
 
         public int ExtraLives { get; private set; } = _DEFAULT_LIFE_COUNT;
@@ -86,9 +88,7 @@ namespace LongRoadGames.PacMan
         public override void Initialize(Gameboard gameboard)
         {
             base.Initialize(gameboard);
-
-            // TODO: tweak PacMan's speed to make it feel a little smoother
-            _speed = 7.0f;
+            _speed = _PACMAN_SPEED;
             _playerInput = GetComponent<PlayerInput>();
         }
 

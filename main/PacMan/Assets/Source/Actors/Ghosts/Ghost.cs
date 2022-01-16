@@ -17,9 +17,6 @@ namespace LongRoadGames.PacMan
 
     public abstract class Ghost : Actor
     {
-        public RuntimeAnimatorController FrightenedAnimatorController;
-        public RuntimeAnimatorController EatenAnimatorController;
-
         // ----- Spawning and Respawning
         public static int POINT_VALUE = 200;
         protected abstract float _INITIAL_SPAWN_TIMER { get; }
@@ -34,15 +31,53 @@ namespace LongRoadGames.PacMan
         protected bool _respawning = false;
 
         // ----- Pathing, AI, and Collisions
-        
         protected abstract Vector3Int _SCATTER_TARGET { get; }
+        protected abstract Direction _HOME_FACING { get; }
+        protected const float _BASE_SPEED = 5.0f;
+        protected const float _SLOW_SPEED = 3.0f;
         protected Vector3Int _EATEN_TARGET = new Vector3Int(13, 19, 0);
         protected delegate Vector3Int _strategyMethod();
         protected Strategy _currentStrategy;
         private Dictionary<Strategy, _strategyMethod> _strategyMap;
         private bool _pathSelected = false;
+        private readonly static List<Vector3Int> _facelockTiles = new List<Vector3Int>
+        {
+            // ghost home
+            new Vector3Int(11, 19, 0),
+            new Vector3Int(12, 19, 0),
+            new Vector3Int(13, 19, 0),
+            new Vector3Int(14, 19, 0),
+            new Vector3Int(15, 19, 0),
+            new Vector3Int(16, 19, 0),
+
+            // pac home
+            new Vector3Int(11, 7, 0),
+            new Vector3Int(12, 7, 0),
+            new Vector3Int(13, 7, 0),
+            new Vector3Int(14, 7, 0),
+            new Vector3Int(15, 7, 0),
+            new Vector3Int(16, 7, 0),
+        };
+        private readonly static List<Vector3Int> _warpTunnels = new List<Vector3Int>()
+        {
+            // left tunnel
+            new Vector3Int(0, 16, 0),
+            new Vector3Int(1, 16, 0),
+            new Vector3Int(2, 16, 0),
+            new Vector3Int(3, 16, 0),
+            new Vector3Int(4, 16, 0),
+
+            // right tunnel
+            new Vector3Int(23, 16, 0),
+            new Vector3Int(24, 16, 0),
+            new Vector3Int(25, 16, 0),
+            new Vector3Int(26, 16, 0),
+            new Vector3Int(27, 16, 0),
+        };
 
         // ----- State Alternatives
+        public RuntimeAnimatorController FrightenedAnimatorController;
+        public RuntimeAnimatorController EatenAnimatorController;
         protected RuntimeAnimatorController _primaryAC;
 
         public override void Update()
@@ -55,6 +90,8 @@ namespace LongRoadGames.PacMan
                     bool atJunction = Vector3.Distance(transform.position, currentTile.Position) <= GameTile.CELL_COLLISION_THRESHOLD;
                     if (atJunction && !_pathSelected)
                         _execute_strategy();
+
+                    _speed = _warpTunnels.Contains(currentTile.CellPosition) ? _SLOW_SPEED : _BASE_SPEED;
 
                     _check_warp(currentTile);
 
@@ -105,7 +142,7 @@ namespace LongRoadGames.PacMan
             base.Initialize(board);
             _primaryAC = _animator.runtimeAnimatorController;
 
-            _speed = 3.0f;
+            _speed = _SLOW_SPEED;
             _currentStrategy = Strategy.Scatter; 
 
             _strategyMap = new Dictionary<Strategy, _strategyMethod>()
@@ -120,14 +157,19 @@ namespace LongRoadGames.PacMan
         public override void Begin()
         {
             _active = true;
-            _speed = 4.5f;
+            _speed = _BASE_SPEED;
+            _face(_INITIAL_FACING);
             _execute_strategy();
             base.Begin();
         }
 
         public override void ResetPosition()
         {
-            base.ResetPosition();
+            _direction = Vector3.zero;
+            _previousTile = null;
+            Facing = _HOME_FACING;
+            Warp(_INITIAL_POSITION, Facing);
+
             _active = false;
             _spawnTimer = _INITIAL_SPAWN_TIMER;
             _spawnStage = 0;
@@ -168,6 +210,7 @@ namespace LongRoadGames.PacMan
                     _spawning = true;
                     _spawnTimer = 0.0f;
                     _spawnStage = 0;
+                    _speed = _SLOW_SPEED;
                     _spawnTransitionTarget = _ghostHomeCenter;
                 }
             }
@@ -189,6 +232,7 @@ namespace LongRoadGames.PacMan
                 _spawnStage = 0;
                 _awaitingSpawn = false;
                 _spawnTimer = 0.0f;
+                _speed = _SLOW_SPEED;
                 _spawnTransitionTarget = _ghostHomeCenter;
                 _currentStrategy = _board.LevelStrategy;
                 _animator.runtimeAnimatorController = _primaryAC;
@@ -204,7 +248,7 @@ namespace LongRoadGames.PacMan
 
         public void Frighten()
         {
-            if (_currentStrategy == Strategy.Frightened && _currentStrategy == Strategy.Eaten)
+            if (_currentStrategy == Strategy.Frightened || _currentStrategy == Strategy.Eaten)
                 return;
 
             _currentStrategy = Strategy.Frightened;
@@ -280,6 +324,9 @@ namespace LongRoadGames.PacMan
 
             if (!_board.DirectionBlocked(currentPosition, right))
                 viableOptions.Add(right, _board.GetTileNeighbour(currentPosition, right));
+
+            if (_facelockTiles.Contains(currentPosition) && viableOptions.ContainsKey(Direction.Up))
+                viableOptions.Remove(Direction.Up);
 
             return viableOptions;
         }

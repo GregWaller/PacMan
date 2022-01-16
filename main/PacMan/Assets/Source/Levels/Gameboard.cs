@@ -20,15 +20,13 @@ namespace LongRoadGames.PacMan
 
     public class Gameboard : MonoBehaviour
     {
-        private const int _TARGET_FPS = 60;
-        private const string _HIGHSCORE_KEY = "HighScore";
-
         // ----- GUI
         public Tilemap Tilemap;
         public Tile DotTile { get; private set; }
         public Tile PDotTile { get; private set; }
         public Tile EmptyTile { get; private set; }
         public UIController GUI { get; private set; }
+        private const int _TARGET_FPS = 60;
 
         // ----- Audio
         public AudioController AudioController => AudioController.Instance;
@@ -50,6 +48,10 @@ namespace LongRoadGames.PacMan
 
         // ----- Power Phases
         public bool PowerPhase { get; private set; } = false;
+        private readonly List<float> _powerPhaseDurations = new List<float> 
+        { 
+            6.0f, 5.0f, 4.0f, 3.0f, 2.0f, 5.0f, 2.0f, 2.0f, 1.0f, 5.0f, 2.0f, 1.0f, 1.0f, 3.0f, 1.0f, 1.0f, 0.0f, 1.0f 
+        };
         private int _currentPowerPhase = 0;
         private float _powerPhaseDuration = 0.0f;
         private int _ghostsEaten = 0;
@@ -63,6 +65,7 @@ namespace LongRoadGames.PacMan
 
         // ----- Scoring
         public int DotsRemaining { get; private set; } = 0;
+        private const string _HIGHSCORE_KEY = "HighScore";
         private int _maxDots = 0;
         private int _score = 0;
         private int _highScore = 0;
@@ -135,13 +138,15 @@ namespace LongRoadGames.PacMan
                 }
                 else
                 {
-                    _update_level_phase();
-
                     if (PowerPhase)
                     {
                         _powerPhaseDuration -= Time.deltaTime;
                         if (_powerPhaseDuration <= 0.0f)
                             _end_power_phase();
+                    }
+                    else
+                    {
+                        _update_level_phase();
                     }
                 }
             }
@@ -164,6 +169,9 @@ namespace LongRoadGames.PacMan
             if (FruitSpawner.Spawned)
                 FruitSpawner.Despawn();
 
+            if (PowerPhase)
+                _end_power_phase();
+
             _prep_level();
         }
 
@@ -178,7 +186,6 @@ namespace LongRoadGames.PacMan
             CurrentLevel = 0;
             GUI.SetLevel(CurrentLevel);
 
-            // TODO: GUI.ShowGameOver(true);  // do an insert coin thing.  
             PacMan.ResetLives();
             ResetLevel(true);
         }
@@ -416,8 +423,7 @@ namespace LongRoadGames.PacMan
                 return false;
             }
 
-            if (isPowerDot && CurrentLevel < 16 || CurrentLevel == 17)
-                _begin_power_phase();
+            if (isPowerDot)_begin_power_phase();
 
             return true;
         }
@@ -441,21 +447,26 @@ namespace LongRoadGames.PacMan
 
         #endregion
 
-        #region Level Strategy and Phases
+        #region Power Phases
 
         private void _begin_power_phase()
         {
-            PowerPhase = true;
-            _powerPhaseDuration = _phase_duration(++_currentPowerPhase, Strategy.Scatter);
-            _ghostsEaten = 0;
-            AudioController.StartLoop(AudioClipID.PowerPellet);
+            _powerPhaseDuration = _fright_time();
+            if (_powerPhaseDuration > 0.0f)
+            {
+                PowerPhase = true;
+                _currentPowerPhase++;
 
-            Pause();
+                _ghostsEaten = 0;
+                AudioController.StartLoop(AudioClipID.PowerPellet);
 
-            Blinky.Frighten();
-            Pinky.Frighten();
-            Inky.Frighten();
-            Clyde.Frighten();
+                Pause();
+
+                Blinky.Frighten();
+                Pinky.Frighten();
+                Inky.Frighten();
+                Clyde.Frighten();
+            }
         }
 
         private void _end_power_phase()
@@ -470,6 +481,28 @@ namespace LongRoadGames.PacMan
             Inky.Resume();
             Clyde.Resume();
         }
+
+        private float _fright_time()
+        {
+            if (CurrentLevel < _powerPhaseDurations.Count)
+                return _powerPhaseDurations[CurrentLevel];
+
+            return 0.0f;
+        }
+
+        #endregion
+
+        #region Level Strategy and Phases
+
+        /* 
+            Phases start with scatter and alternate for the duration of the level as follows (values in seconds)
+
+                             phase 0                 phase 1                 phase 2                 phase 3
+                             scatter     chase       scatter     chase       scatter     chase       scatter     chase       
+            level 1          7           20          7           20          5           20          5           -
+            level 2-4        7           20          7           20          5           17          .01         -
+            level 5+         5           20          5           20          5           17          .01         -
+        */
 
         protected virtual void _update_level_phase()
         {
@@ -496,16 +529,6 @@ namespace LongRoadGames.PacMan
             _phaseTimer = CurrentLevel < 5 ? 7.0f : 5.0f;
             LevelStrategy = Strategy.Scatter;
         }
-
-        /* 
-            Phases start with scatter and alternate for the duration of the level as follows (values in seconds)
-
-                             phase 0                 phase 1                 phase 2                 phase 3
-                             scatter     chase       scatter     chase       scatter     chase       scatter     chase       
-            level 1          7           20          7           20          5           20          5           -
-            level 2-4        7           20          7           20          5           17          .01         -
-            level 5+         5           20          5           20          5           17          .01         -
-        */
 
         private float _phase_duration(int levelPhase, Strategy strategy)
         {

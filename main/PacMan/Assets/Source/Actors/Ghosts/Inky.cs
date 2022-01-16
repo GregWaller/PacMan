@@ -6,7 +6,8 @@ namespace LongRoadGames.PacMan
     {
         protected override Vector3 _INITIAL_POSITION => new Vector3(12.0f, 16.5f, 0.0f);
         protected override Vector3Int _SCATTER_TARGET => new Vector3Int(27, -1, 0);
-        protected override Direction _INITIAL_FACING => Direction.Up;
+        protected override Direction _HOME_FACING => Direction.Up;
+        protected override Direction _INITIAL_FACING => Direction.Right;
         protected override float _INITIAL_SPAWN_TIMER => 7.0f;
 
         protected override Vector3Int _chase()

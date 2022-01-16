@@ -6,7 +6,8 @@ namespace LongRoadGames.PacMan
     {
         protected override Vector3 _INITIAL_POSITION => new Vector3(14.0f, 19.5f, 0.0f);
         protected override Vector3Int _SCATTER_TARGET => new Vector3Int(25, 34, 0);
-        protected override Direction _INITIAL_FACING => Direction.Left;
+        protected override Direction _HOME_FACING => Direction.Left;
+        protected override Direction _INITIAL_FACING => Direction.Right;
         protected override float _INITIAL_SPAWN_TIMER => 0.0f;
 
         // Blinky can override the level strategy if there are only a few dots left on the map 
