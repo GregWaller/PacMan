@@ -19,7 +19,7 @@ namespace LongRoadGames.PacMan
         private Text _txtDevCurrentPowerPhase;
 
         // ----- Gameplay Readouts
-        private Text _txtCurrentScore;
+        private Text _txtCurrentScore;          
         private Text _txtHighScore;
         private Text _txtReady;
         private Text _txtGameOver;

@@ -88,6 +88,7 @@ namespace LongRoadGames.PacMan
         public void Start()
         {
             Application.targetFrameRate = _TARGET_FPS;
+            Screen.SetResolution(1920, 1080, false); // force to 1080p resolution
 
 #if DEBUG
             Debug.Assert(Tilemap != null, "CRITICAL ERROR: The gameboard cannot be null.");

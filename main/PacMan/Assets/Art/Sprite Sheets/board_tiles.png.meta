@@ -168,6 +168,7 @@ TextureImporter:
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -1300,6 +1301,55 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      board_tiles_38: 5843457525116659704
+      board_tiles_28: -7001883594091885042
+      board_tiles_26: 5823700016083901429
+      board_tiles_33: -8455543807252929695
+      board_tiles_30: 8136327335842102739
+      board_tiles_0: -2416074227630544700
+      board_tiles_37: 4320451351383219702
+      board_tiles_15: 7378538529755178653
+      board_tiles_29: -4897559126895362064
+      board_tiles_11: 9189623359896684985
+      board_tiles_47: -5156555250353898244
+      board_tiles_13: 5747571732839895864
+      board_tiles_39: 8109744212031618094
+      board_tiles_16: 573362335121443518
+      board_tiles_6: -1668999276236411647
+      board_tiles_42: -6362634275573022543
+      board_tiles_8: -1864574301049295384
+      board_tiles_24: 7420263386796320394
+      board_tiles_40: 967115433674215074
+      board_tiles_3: -1717520345991140012
+      board_tiles_20: 2494231394836932702
+      board_tiles_12: -8915180411113325066
+      board_tiles_4: 2462297225862822261
+      board_tiles_10: -6374956463192747421
+      board_tiles_31: 3708551547361713460
+      board_tiles_14: -1632511387833971883
+      board_tiles_22: 8319513810722714266
+      board_tiles_46: 5432867615564118894
+      board_tiles_44: -2773681516813999125
+      board_tiles_32: 7885710544077932805
+      board_tiles_27: 4590528877927601133
+      board_tiles_1: -606375067552374246
+      board_tiles_41: 3115455384551763519
+      board_tiles_45: -5267319641776635617
+      board_tiles_2: 1957427889127876433
+      board_tiles_17: 95094225716516618
+      board_tiles_19: -4683673394092135647
+      board_tiles_35: 3040514833659402728
+      board_tiles_34: 3454864389537967488
+      board_tiles_7: -5443719882932503453
+      board_tiles_5: 705626752884973054
+      board_tiles_25: 7104397878856488773
+      board_tiles_23: -7352838904936661387
+      board_tiles_43: -4211954897951168817
+      board_tiles_9: -4345107986091280652
+      board_tiles_21: 4814800340752574442
+      board_tiles_36: -4942525770224615828
+      board_tiles_18: -3380423058927393206
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
